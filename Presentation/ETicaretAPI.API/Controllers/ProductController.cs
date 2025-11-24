@@ -1,5 +1,6 @@
 ﻿using ETicaretAPI.Application.Repositories;
 using ETicaretAPI.Application.RequestParmeters;
+using ETicaretAPI.Application.Services;
 using ETicaretAPI.Application.ViewModels.Products;
 using ETicaretAPI.Domain.Entities;
 using Microsoft.AspNetCore.Http;
@@ -17,12 +18,14 @@ namespace ETicaretAPI.API.Controllers
         IProductReadRepository readRepository;
         IProductWriteRepository writeRepository;
         IWebHostEnvironment webHostEnvironment;
+        IFileService fileService;
 
-        public ProductController(IProductReadRepository readRepository, IProductWriteRepository writeRepository,IWebHostEnvironment webHostEnvironment)
+        public ProductController(IProductReadRepository readRepository, IProductWriteRepository writeRepository,IWebHostEnvironment webHostEnvironment,IFileService fileService)
         {
             this.readRepository = readRepository;
             this.writeRepository = writeRepository;
             this.webHostEnvironment = webHostEnvironment;
+            this.fileService = fileService;
         }
 
         [HttpGet]
@@ -65,17 +68,8 @@ namespace ETicaretAPI.API.Controllers
         [HttpPost("[action]")]
         public  async Task<IActionResult> Upload()
         {
-            string uploadPath = Path.Combine(webHostEnvironment.WebRootPath, "reesource\\product-images");
-            if (!Directory.Exists(uploadPath))
-                Directory.CreateDirectory(uploadPath);
-            Random r = new Random();
-            foreach(IFormFile file in Request.Form.Files)
-            {
-                string fullPath = Path.Combine(uploadPath, $"{r.Next()}{Path.GetExtension(file.FileName)}");
-                using FileStream fileStream = new FileStream(fullPath, FileMode.Create, FileAccess.Write, FileShare.None, 1024 * 1024, useAsync: false);
-                await file.CopyToAsync(fileStream);
-                await fileStream.FlushAsync();
-            }
+            await fileService.UploadAsync("reesource\\product-images", Request.Form.Files);
+            
             return Ok();
         }
         [HttpPut]
