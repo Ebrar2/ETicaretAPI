@@ -1,4 +1,5 @@
 ﻿using ETicaretAPI.Application.Services;
+using ETicaretAPI.Infrastructure.Operations;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using System;
@@ -32,9 +33,26 @@ namespace ETicaretAPI.Infrastructure.Services
             }
         }
 
-        public Task<string> FileRenameAsync(string fileName)
+        string FileRenameAsync(string fileName,string path)
         {
-            throw new NotImplementedException();
+            string fileExtension = Path.GetExtension(fileName);
+            string oldFileName = Path.GetFileNameWithoutExtension(fileName);
+
+            string editFileName =NameOperation.CharacterRegulatory(oldFileName);
+            string fullName = $"{editFileName}{fileExtension}";
+            bool isExist = File.Exists($"{path}\\{fullName}");
+
+        
+            int sayac = 1;
+            while (isExist)
+            {
+                string newName =  editFileName+"-"+ sayac;
+                fullName = $"{newName}{fileExtension}";
+                isExist = File.Exists($"{path}\\{fullName}");
+                sayac++;
+            }
+           return fullName;
+            
         }
 
         public async Task<List<(string,string)>> UploadAsync(string path, IFormFileCollection files)
@@ -45,8 +63,8 @@ namespace ETicaretAPI.Infrastructure.Services
             List<(string, string)> datas = new List<(string, string)>();
             foreach (IFormFile file in files)
             {
-                string newFileName =await FileRenameAsync(file.FileName);
-                string fullPath = Path.Combine(uploadPath, Path.GetExtension(file.FileName));
+                string newFileName =FileRenameAsync(file.FileName,uploadPath);
+                string fullPath = Path.Combine(uploadPath, newFileName);
                 bool result= await CopyToAsync(fullPath, file);
                 if (!result)
                     return null;

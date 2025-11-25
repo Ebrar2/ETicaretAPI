@@ -68,7 +68,7 @@ namespace ETicaretAPI.API.Controllers
         [HttpPost("[action]")]
         public  async Task<IActionResult> Upload()
         {
-            await fileService.UploadAsync("reesource\\product-images", Request.Form.Files);
+            await fileService.UploadAsync("resource\\product-images", Request.Form.Files);
             
             return Ok();
         }
