@@ -19,13 +19,25 @@ namespace ETicaretAPI.API.Controllers
         IProductWriteRepository writeRepository;
         IWebHostEnvironment webHostEnvironment;
         IFileService fileService;
+        IFileWriteRepository fileWriteRepository;
+        IFileReadRepository fileReadRepository;
+        IProductImageFileReadRepository productImageFileReadRepository;
+        IProductImageFileWriteRepository productImageFileWriteRepository;
+        IInvoiceFileReadRepository invoiceFileReadRepository;
+        IInvoiceFileWriteRepository invoiceFileWriteRepository;
 
-        public ProductController(IProductReadRepository readRepository, IProductWriteRepository writeRepository,IWebHostEnvironment webHostEnvironment,IFileService fileService)
+        public ProductController(IProductReadRepository readRepository, IProductWriteRepository writeRepository, IWebHostEnvironment webHostEnvironment, IFileService fileService, IFileWriteRepository fileWriteRepository, IFileReadRepository fileReadRepository, IProductImageFileReadRepository productImageFileReadRepository, IProductImageFileWriteRepository productImageFileWriteRepository, IInvoiceFileReadRepository invoiceFileReadRepository, IInvoiceFileWriteRepository invoiceFileWriteRepository)
         {
             this.readRepository = readRepository;
             this.writeRepository = writeRepository;
             this.webHostEnvironment = webHostEnvironment;
             this.fileService = fileService;
+            this.fileWriteRepository = fileWriteRepository;
+            this.fileReadRepository = fileReadRepository;
+            this.productImageFileReadRepository = productImageFileReadRepository;
+            this.productImageFileWriteRepository = productImageFileWriteRepository;
+            this.invoiceFileReadRepository = invoiceFileReadRepository;
+            this.invoiceFileWriteRepository = invoiceFileWriteRepository;
         }
 
         [HttpGet]
@@ -68,8 +80,25 @@ namespace ETicaretAPI.API.Controllers
         [HttpPost("[action]")]
         public  async Task<IActionResult> Upload()
         {
-            await fileService.UploadAsync("resource\\product-images", Request.Form.Files);
-            
+            var datas= await fileService.UploadAsync("resource\\files", Request.Form.Files);
+            //await productImageFileWriteRepository.AddRangeAsync(datas.Select(x=>new ProductImageFile()
+            //{
+            //    FileName=x.fileName,
+            //    Path=x.path
+            //}).ToList());
+            //await productImageFileWriteRepository.SaveAsync();
+            //await invoiceFileWriteRepository.AddRangeAsync(datas.Select(x => new InvoiceFile()
+            //{
+            //    FileName = x.fileName,
+            //    Path = x.path
+            //}).ToList());
+            //await invoiceFileWriteRepository.SaveAsync();
+            await fileWriteRepository.AddRangeAsync(datas.Select(x => new Domain.Entities.File()
+            {
+                FileName = x.fileName,
+                Path = x.path
+            }).ToList());
+            await fileWriteRepository.SaveAsync();
             return Ok();
         }
         [HttpPut]
