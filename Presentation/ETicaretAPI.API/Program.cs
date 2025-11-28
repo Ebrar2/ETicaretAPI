@@ -15,8 +15,8 @@ builder.Services.AddCors(o => o.AddDefaultPolicy(policy=>
 builder.Services.AddPersistenceServices();
 builder.Services.AddInfrastructureServices();
 
-//builder.Services.AddStorage<AzureStorage>();
-builder.Services.AddStorage<LocalStorage>();
+builder.Services.AddStorage<AzureStorage>();
+//builder.Services.AddStorage<LocalStorage>();
 builder.Services.AddControllers(o=>o.Filters.Add<ValidationFilter>())
     .AddFluentValidation(configurationExpression=>configurationExpression.RegisterValidatorsFromAssemblyContaining<CreateProductValidator>())
      .ConfigureApiBehaviorOptions(o=>o.SuppressModelStateInvalidFilter=true);

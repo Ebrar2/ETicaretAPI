@@ -77,40 +77,20 @@ namespace ETicaretAPI.API.Controllers
             return Ok();
         }
         [HttpPost("[action]")]
-        public  async Task<IActionResult> Upload()
-        {
-            //var datas= await fileService.UploadAsync("resource\\files", Request.Form.Files);
-            ////await productImageFileWriteRepository.AddRangeAsync(datas.Select(x=>new ProductImageFile()
-            ////{
-            ////    FileName=x.fileName,
-            ////    Path=x.path
-            ////}).ToList());
-            ////await productImageFileWriteRepository.SaveAsync();
-            ////await invoiceFileWriteRepository.AddRangeAsync(datas.Select(x => new InvoiceFile()
-            ////{
-            ////    FileName = x.fileName,
-            ////    Path = x.path
-            ////}).ToList());
-            ////await invoiceFileWriteRepository.SaveAsync();
-
-
-            //var datas = await storageService.UploadAsync("files", Request.Form.Files);
-            //await fileWriteRepository.AddRangeAsync(datas.Select(x => new Domain.Entities.File()
-            //{
-            //    FileName = x.fileName,
-            //    Path = x.pathOrContainerName,
-            //    Storage=storageService.StorageName
-            //}).ToList());
-            //await fileWriteRepository.SaveAsync();
-
-            var datas = await storageService.UploadAsync("resource\\files", Request.Form.Files);
-            await fileWriteRepository.AddRangeAsync(datas.Select(x => new Domain.Entities.File()
+        public  async Task<IActionResult> Upload(string id)
+        { 
+            List<(string fileName,string pathOrContainerName)> datas =await storageService.UploadAsync("product-images", Request.Form.Files);
+            Product product = await readRepository.GetByIdAsync(id);
+            productImageFileWriteRepository.AddRangeAsync(datas.Select(f => new ProductImageFile()
             {
-                FileName = x.fileName,
-                Path = x.pathOrContainerName,
-                Storage = storageService.StorageName
+                FileName=f.fileName,
+                Path=f.pathOrContainerName,
+                Storage=storageService.StorageName,
+                Products = new List<Product>() { product}
             }).ToList());
-            await fileWriteRepository.SaveAsync();
+
+            await productImageFileWriteRepository.SaveAsync();
+        
             return Ok();
         }
         [HttpPut]
