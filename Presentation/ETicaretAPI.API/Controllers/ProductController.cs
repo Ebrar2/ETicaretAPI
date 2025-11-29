@@ -101,7 +101,6 @@ namespace ETicaretAPI.API.Controllers
         public async Task<IActionResult> GetProductImages(string id)
         {
             Product product=await readRepository.Table.Include(p => p.ProductImageFiles).FirstOrDefaultAsync(p => p.Id ==Guid.Parse(id));
-        
             return Ok(product.ProductImageFiles.Select(p => new
             {
                 Path = $"{configuration["BaseStorageUrl"]}/{p.Path}",
