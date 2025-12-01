@@ -1,8 +1,11 @@
 ﻿using ETicaretAPI.Application.Abstractions.Storage;
+using ETicaretAPI.Application.Feautures.Commands.CreateProduct;
+using ETicaretAPI.Application.Feautures.Queries.GetAllProduct;
 using ETicaretAPI.Application.Repositories;
 using ETicaretAPI.Application.RequestParmeters;
 using ETicaretAPI.Application.ViewModels.Products;
 using ETicaretAPI.Domain.Entities;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
@@ -28,7 +31,9 @@ namespace ETicaretAPI.API.Controllers
         IInvoiceFileWriteRepository invoiceFileWriteRepository;
         IStorageService storageService;
         IConfiguration configuration;
-        public ProductController(IProductReadRepository readRepository, IProductWriteRepository writeRepository, IWebHostEnvironment webHostEnvironment, IFileWriteRepository fileWriteRepository, IFileReadRepository fileReadRepository, IProductImageFileReadRepository productImageFileReadRepository, IProductImageFileWriteRepository productImageFileWriteRepository, IInvoiceFileReadRepository invoiceFileReadRepository, IInvoiceFileWriteRepository invoiceFileWriteRepository, IStorageService storageService, IConfiguration configuration)
+
+        readonly IMediator mediator;
+        public ProductController(IProductReadRepository readRepository, IProductWriteRepository writeRepository, IWebHostEnvironment webHostEnvironment, IFileWriteRepository fileWriteRepository, IFileReadRepository fileReadRepository, IProductImageFileReadRepository productImageFileReadRepository, IProductImageFileWriteRepository productImageFileWriteRepository, IInvoiceFileReadRepository invoiceFileReadRepository, IInvoiceFileWriteRepository invoiceFileWriteRepository, IStorageService storageService, IConfiguration configuration,IMediator mediator)
         {
             this.readRepository = readRepository;
             this.writeRepository = writeRepository;
@@ -41,27 +46,15 @@ namespace ETicaretAPI.API.Controllers
             this.invoiceFileWriteRepository = invoiceFileWriteRepository;
             this.storageService = storageService;
             this.configuration = configuration;
+            this.mediator = mediator;
         }
 
-        [HttpGet]
-        public IActionResult Get([FromQuery] Pagination pagination)
-        {
-            var totalCount = readRepository.GetAll(false).Count();
-            var products = readRepository.GetAll(false).Skip(pagination.Page * pagination.Size).Take(pagination.Size).Select(p => new
-            {
-                p.Id,
-                p.Name,
-                p.Price,
-                p.Stock,
-                p.UpdatedDate,
-                p.CreatedDate
-            }).ToList();
+      
 
-            return Ok(new
-            {
-               totalCount,
-               products
-            });
+        [HttpGet]
+        public async Task<IActionResult> Get([FromQuery] GetAllProductQueryRequest getAllProductQueryRequest)
+        {
+            return Ok( await mediator.Send(getAllProductQueryRequest));
         }
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(string id)
@@ -69,23 +62,17 @@ namespace ETicaretAPI.API.Controllers
             return Ok(await readRepository.GetByIdAsync(id,false));
         }
         [HttpPost]
-        public async Task<IActionResult> Post(CreateProductVM productVM)
+        public async Task<IActionResult> Post(CreateProductCommandRequest createProductCommandRequest)
         {
-            await writeRepository.AddAsync(new Product()
-            {
-                Name = productVM.Name,
-                Price = productVM.Price,
-                Stock = productVM.Stock
-            });
-            await writeRepository.SaveAsync();
-            return Ok();
+            
+            return Ok(await mediator.Send(createProductCommandRequest));
         }
         [HttpPost("[action]")]
         public  async Task<IActionResult> Upload(string id)
         { 
             List<(string fileName,string pathOrContainerName)> datas =await storageService.UploadAsync("product-images", Request.Form.Files);
             Product product = await readRepository.GetByIdAsync(id);
-            productImageFileWriteRepository.AddRangeAsync(datas.Select(f => new ProductImageFile()
+            await productImageFileWriteRepository.AddRangeAsync(datas.Select(f => new ProductImageFile()
             {
                 FileName=f.fileName,
                 Path=f.pathOrContainerName,
