@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ETicaretAPI.Application.Feautures.Commands.CreateProduct
+namespace ETicaretAPI.Application.Feautures.Commands.Product.CreateProduct
 {
     public class CreateProductCommandRequest:IRequest<CreateProductCommandResponse>
     {

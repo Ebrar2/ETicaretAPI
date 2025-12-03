@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ETicaretAPI.Application.Feautures.Commands.CreateProduct
+namespace ETicaretAPI.Application.Feautures.Commands.Product.DeleteProduct
 {
-    public class CreateProductCommandResponse
+    public class DeleteProductCommandResponse
     {
     }
 }
