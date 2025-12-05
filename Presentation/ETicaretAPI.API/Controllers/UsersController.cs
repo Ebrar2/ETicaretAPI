@@ -1,4 +1,5 @@
 ﻿using ETicaretAPI.Application.Feautures.Commands.User.CreateUser;
+using ETicaretAPI.Application.Feautures.Commands.User.LoginUser;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -16,6 +17,11 @@ namespace ETicaretAPI.API.Controllers
         public UsersController(IMediator mediator)
         {
             this.mediator = mediator;
+        }
+        [HttpPost("[action]")]
+        public async Task<IActionResult> Login(LoginUserCommandRequest loginUserCommandRequest)
+        {
+            return Ok(await mediator.Send(loginUserCommandRequest));
         }
 
         [HttpPost]

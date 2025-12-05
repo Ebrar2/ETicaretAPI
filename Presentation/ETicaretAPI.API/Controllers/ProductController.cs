@@ -28,14 +28,14 @@ namespace ETicaretAPI.API.Controllers
 
 
 
-        IStorageService storageService;
+        readonly IStorageService storageService;
 
         readonly IMediator mediator;
-        public ProductController( IStorageService storageServic,IMediator mediator)
+        public ProductController( IStorageService storageService,IMediator mediator)
         {
         
           
-            this.storageService = storageService;
+           this.storageService = storageService;
             this.mediator = mediator;
         }
 
