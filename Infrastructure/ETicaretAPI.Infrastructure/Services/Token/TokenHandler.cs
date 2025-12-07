@@ -37,7 +37,7 @@ namespace ETicaretAPI.Infrastructure.Services.Token
 
                 );
             JwtSecurityTokenHandler tokenHandler = new();
-            token.AcessToken = tokenHandler.WriteToken(jwtSecurityToken);
+            token.AccessToken= tokenHandler.WriteToken(jwtSecurityToken);
             return token;
         }
     }

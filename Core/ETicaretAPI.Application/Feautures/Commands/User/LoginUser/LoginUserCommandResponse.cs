@@ -8,5 +8,16 @@ namespace ETicaretAPI.Application.Feautures.Commands.User.LoginUser
 {
     public class LoginUserCommandResponse
     {
+        public string Message { get; set; }
+        public bool Succeeded { get; set; } = false;
+    }
+    public class LoginUserSuccessCommandResponse:LoginUserCommandResponse
+    {
+        public string AccessToken { get; set; }
+        public bool Succeeded { get; set; } = true;
+    }
+    public class LoginUserErrorCommandResponse : LoginUserCommandResponse
+    {
+
     }
 }
