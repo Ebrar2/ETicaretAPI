@@ -33,7 +33,7 @@ namespace ETicaretAPI.Application.Feautures.Commands.User.LoginUser
             if (user == null)
                 return new LoginUserErrorCommandResponse() { Message = "Kullanıcı Bulunamadı" };
            var result= await signInManager.CheckPasswordSignInAsync(user, request.Password, false);
-            Token token = tokenHandler.CreateAccessToke(5);
+            Token token = tokenHandler.CreateAccessToken(5);
             if(result.Succeeded)
                 return new LoginUserSuccessCommandResponse(){ 
                 Message="Kullanıcı girişi başarılı",

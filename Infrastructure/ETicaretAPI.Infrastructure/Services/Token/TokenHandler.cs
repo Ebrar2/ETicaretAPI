@@ -19,7 +19,7 @@ namespace ETicaretAPI.Infrastructure.Services.Token
             this.configuration = configuration;
         }
 
-        public Application.DTOs.Token CreateAccessToke(int minute)
+        public Application.DTOs.Token CreateAccessToken(int minute)
         {
             Application.DTOs.Token token = new Application.DTOs.Token();
             token.Expiration = DateTime.UtcNow.AddMinutes(minute);
