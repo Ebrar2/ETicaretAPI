@@ -24,13 +24,14 @@ namespace ETicaretAPI.Persistence.Services
         readonly UserManager<AppUser> userManager;
         readonly ITokenHandler tokenHandler;
         readonly SignInManager<AppUser> signInManager;
-
-        public AuthService(IConfiguration configuration, UserManager<AppUser> userManager, ITokenHandler tokenHandler, SignInManager<AppUser> signInManager)
+        readonly IUserService userService;
+        public AuthService(IConfiguration configuration, UserManager<AppUser> userManager, ITokenHandler tokenHandler, SignInManager<AppUser> signInManager,IUserService userService)
         {
             this.configuration = configuration;
             this.userManager = userManager;
             this.tokenHandler = tokenHandler;
             this.signInManager = signInManager;
+            this.userService = userService;
         }
 
         public async Task<LoginWithGoogleResponseDTO> GoogleLoginAsync(LoginWithGoogleDTO loginWithGoogleDTO)
@@ -68,7 +69,8 @@ namespace ETicaretAPI.Persistence.Services
             if (result)
             {
                 await userManager.AddLoginAsync(user, userLoginInfo);
-                var token = tokenHandler.CreateAccessToken(5);
+                var token = tokenHandler.CreateAccessToken(1);
+                await  userService.UpdateRefreshToken(token.RefreshToken, token.Expiration, 1, user);
                 return new LoginWithGoogleResponseDTO {Succeeded=true, Message = "Giriş başarılı", AccessToken = token.AccessToken };
             }
             return new LoginWithGoogleResponseDTO { Message = "Giriş başarısız" };
@@ -83,7 +85,8 @@ namespace ETicaretAPI.Persistence.Services
             if (user == null)
                 return new LoginResponseDTO() { Message = "Kullanıcı Bulunamadı" };
             var result = await signInManager.CheckPasswordSignInAsync(user, loginDTO.Password, false);
-            Token token = tokenHandler.CreateAccessToken(5);
+            Token token = tokenHandler.CreateAccessToken(1);
+            await userService.UpdateRefreshToken(token.RefreshToken, token.Expiration, 1, user);
             if (result.Succeeded)
                 return new()
                 {
