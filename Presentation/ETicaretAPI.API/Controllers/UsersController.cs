@@ -19,16 +19,7 @@ namespace ETicaretAPI.API.Controllers
         {
             this.mediator = mediator;
         }
-        [HttpPost("[action]")]
-        public async Task<IActionResult> Login(LoginUserCommandRequest loginUserCommandRequest)
-        {
-            return Ok(await mediator.Send(loginUserCommandRequest));
-        }
-        [HttpPost("[action]")]
-        public async Task<IActionResult> LoginWithGoogle(LoginWithGoogleCommandRequest loginWithGoogleCommandRequest)
-        {
-            return Ok(await mediator.Send(loginWithGoogleCommandRequest));
-        }
+     
 
         [HttpPost]
         public async Task<IActionResult> Post(CreateUserCommandRequest createUserCommandRequest)
