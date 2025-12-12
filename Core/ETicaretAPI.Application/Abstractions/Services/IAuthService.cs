@@ -11,5 +11,6 @@ namespace ETicaretAPI.Application.Abstractions.Services
     {
         Task<LoginResponseDTO> LoginAsync(LoginDTO loginDTO);
         Task<LoginWithGoogleResponseDTO> GoogleLoginAsync(LoginWithGoogleDTO loginWithGoogleDTO);
+        Task<LoginWithRefreshTokenDTO> RefreshLoginAsync(string refreshToken);
     }
 }

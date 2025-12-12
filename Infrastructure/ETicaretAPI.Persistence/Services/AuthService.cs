@@ -8,6 +8,7 @@ using ETicaretAPI.Domain.Entities.Identity;
 using Google.Apis.Auth;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -71,7 +72,7 @@ namespace ETicaretAPI.Persistence.Services
                 await userManager.AddLoginAsync(user, userLoginInfo);
                 var token = tokenHandler.CreateAccessToken(1);
                 await  userService.UpdateRefreshToken(token.RefreshToken, token.Expiration, 1, user);
-                return new LoginWithGoogleResponseDTO {Succeeded=true, Message = "Giriş başarılı", AccessToken = token.AccessToken };
+                return new LoginWithGoogleResponseDTO {Succeeded=true, Message = "Giriş başarılı", AccessToken = token.AccessToken,RefreshToken=token.RefreshToken };
             }
             return new LoginWithGoogleResponseDTO { Message = "Giriş başarısız" };
         }
@@ -92,7 +93,8 @@ namespace ETicaretAPI.Persistence.Services
                 {
                     Succeeded = true,
                     Message = "Kullanıcı girişi başarılı",
-                    AccessToken = token.AccessToken
+                    AccessToken = token.AccessToken,
+                    RefreshToken = token.RefreshToken
                 }; 
 
             return new()
@@ -100,6 +102,24 @@ namespace ETicaretAPI.Persistence.Services
                 Message = "Kullanıcı girişi başarısız"
             };
 
+        }
+
+        public async Task<LoginWithRefreshTokenDTO> RefreshLoginAsync(string refreshToken)
+        {
+            var user =await userManager.Users.FirstOrDefaultAsync(user => user.RefreshToken == refreshToken);
+            if (user != null && user.RefreshTokenDate > DateTime.UtcNow)
+            {
+                Token token = tokenHandler.CreateAccessToken(1);
+                await userService.UpdateRefreshToken(token.RefreshToken, token.Expiration, 1, user);
+                return new()
+                {
+                    AccessToken = token.AccessToken,
+                    RefreshToken = token.RefreshToken,
+                    Succeeded = true
+                };
+            }
+            else
+                return new() { Succeeded = false };
         }
     }
 }

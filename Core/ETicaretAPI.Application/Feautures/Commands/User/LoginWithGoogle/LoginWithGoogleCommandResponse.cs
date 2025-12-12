@@ -20,6 +20,7 @@ namespace ETicaretAPI.Application.Feautures.Commands.User.LoginWithGoogle
         }
 
         public string AccessToken { get; set; }
+        public string RefreshToken { get; set; }
     }
     public class LoginWithCommanErrorResponse : LoginWithGoogleCommandResponse
     {

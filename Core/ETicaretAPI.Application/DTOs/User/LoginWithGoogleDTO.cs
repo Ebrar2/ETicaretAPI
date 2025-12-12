@@ -16,6 +16,7 @@ namespace ETicaretAPI.Application.DTOs.User
         public string Message { get; set; }
         public bool Succeeded { get; set; } = false;
         public string AccessToken { get; set; }
+        public string RefreshToken { get; set; }
 
     }
    

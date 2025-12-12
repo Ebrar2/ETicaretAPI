@@ -31,7 +31,7 @@ namespace ETicaretAPI.Application.Feautures.Commands.User.LoginWithGoogle
                 Provider = request.Provider
             });
             if (result.Succeeded)
-                return new LoginWithCommanSuccessResponse() { Succeeded = result.Succeeded, Message = result.Message,AccessToken=result.AccessToken };
+                return new LoginWithCommanSuccessResponse() { Succeeded = result.Succeeded, Message = result.Message,AccessToken=result.AccessToken,RefreshToken=result.RefreshToken };
             return new LoginWithCommanErrorResponse() { Succeeded = result.Succeeded, Message = result.Message };
         }
     }
