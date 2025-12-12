@@ -70,7 +70,7 @@ namespace ETicaretAPI.Persistence.Services
             if (result)
             {
                 await userManager.AddLoginAsync(user, userLoginInfo);
-                var token = tokenHandler.CreateAccessToken(1);
+                var token = tokenHandler.CreateAccessToken(1,user);
                 await  userService.UpdateRefreshToken(token.RefreshToken, token.Expiration, 1, user);
                 return new LoginWithGoogleResponseDTO {Succeeded=true, Message = "Giriş başarılı", AccessToken = token.AccessToken,RefreshToken=token.RefreshToken };
             }
@@ -86,7 +86,7 @@ namespace ETicaretAPI.Persistence.Services
             if (user == null)
                 return new LoginResponseDTO() { Message = "Kullanıcı Bulunamadı" };
             var result = await signInManager.CheckPasswordSignInAsync(user, loginDTO.Password, false);
-            Token token = tokenHandler.CreateAccessToken(1);
+            Token token = tokenHandler.CreateAccessToken(1,user);
             await userService.UpdateRefreshToken(token.RefreshToken, token.Expiration, 1, user);
             if (result.Succeeded)
                 return new()
@@ -109,7 +109,7 @@ namespace ETicaretAPI.Persistence.Services
             var user =await userManager.Users.FirstOrDefaultAsync(user => user.RefreshToken == refreshToken);
             if (user != null && user.RefreshTokenDate > DateTime.UtcNow)
             {
-                Token token = tokenHandler.CreateAccessToken(1);
+                Token token = tokenHandler.CreateAccessToken(1,user);
                 await userService.UpdateRefreshToken(token.RefreshToken, token.Expiration, 1, user);
                 return new()
                 {

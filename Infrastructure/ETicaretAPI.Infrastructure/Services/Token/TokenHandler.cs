@@ -1,10 +1,12 @@
 ﻿using ETicaretAPI.Application.Abstractions.Token;
+using ETicaretAPI.Domain.Entities.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,7 +22,7 @@ namespace ETicaretAPI.Infrastructure.Services.Token
             this.configuration = configuration;
         }
 
-        public Application.DTOs.Token CreateAccessToken(int minute)
+        public Application.DTOs.Token CreateAccessToken(int minute,AppUser user)
         {
             Application.DTOs.Token token = new Application.DTOs.Token();
             token.Expiration = DateTime.UtcNow.AddMinutes(minute);
@@ -33,8 +35,9 @@ namespace ETicaretAPI.Infrastructure.Services.Token
                 issuer: configuration["Token:Issuer"],
                 expires: token.Expiration,
                 notBefore: DateTime.UtcNow,
-                signingCredentials: signingCredentials
-
+                signingCredentials: signingCredentials,
+                claims:new List<Claim>() { new(ClaimTypes.Name,user.UserName)}
+                
 
                 );
             JwtSecurityTokenHandler tokenHandler = new();
