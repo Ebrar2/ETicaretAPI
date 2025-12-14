@@ -7,6 +7,7 @@ using ETicaretAPI.Infrastructure.Filters;
 using ETicaretAPI.Infrastructure.Services.Storage.Azure;
 using ETicaretAPI.Infrastructure.Services.Storage.Local;
 using ETicaretAPI.Persistence;
+using ETicaretAPI.SignalR;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpLogging;
@@ -25,11 +26,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCors(o => o.AddDefaultPolicy(policy=>
   //policy.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin()
-  policy.WithOrigins("http://localhost:4200", "https://localhost:4200").AllowAnyHeader().AllowAnyMethod()
+  policy.WithOrigins("http://localhost:4200", "https://localhost:4200").AllowAnyHeader().AllowAnyMethod().AllowCredentials()
 ));
 builder.Services.AddPersistenceServices();
 builder.Services.AddInfrastructureServices();
 builder.Services.AddApplicationServices();
+builder.Services.AddSignalRServices();
 Logger logger = new LoggerConfiguration()
     .WriteTo.Console()
     .WriteTo.File("logs/log.txt")
@@ -104,6 +106,8 @@ app.Use(async(context, next)=>{
     LogContext.PushProperty("user_name", username);
     await next();
 });
+
+app.MapHubs();
 app.MapControllers();
 
 app.Run();

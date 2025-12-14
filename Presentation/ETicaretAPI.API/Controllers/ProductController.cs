@@ -44,6 +44,7 @@ namespace ETicaretAPI.API.Controllers
       
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> Get([FromQuery] GetAllProductQueryRequest getAllProductQueryRequest)
         {
             return Ok( await mediator.Send(getAllProductQueryRequest));

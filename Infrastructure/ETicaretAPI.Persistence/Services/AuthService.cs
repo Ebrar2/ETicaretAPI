@@ -70,8 +70,8 @@ namespace ETicaretAPI.Persistence.Services
             if (result)
             {
                 await userManager.AddLoginAsync(user, userLoginInfo);
-                var token = tokenHandler.CreateAccessToken(1,user);
-                await  userService.UpdateRefreshToken(token.RefreshToken, token.Expiration, 1, user);
+                var token = tokenHandler.CreateAccessToken(15,user);
+                await  userService.UpdateRefreshToken(token.RefreshToken, token.Expiration, 5, user);
                 return new LoginWithGoogleResponseDTO {Succeeded=true, Message = "Giriş başarılı", AccessToken = token.AccessToken,RefreshToken=token.RefreshToken };
             }
             return new LoginWithGoogleResponseDTO { Message = "Giriş başarısız" };
@@ -86,8 +86,8 @@ namespace ETicaretAPI.Persistence.Services
             if (user == null)
                 return new LoginResponseDTO() { Message = "Kullanıcı Bulunamadı" };
             var result = await signInManager.CheckPasswordSignInAsync(user, loginDTO.Password, false);
-            Token token = tokenHandler.CreateAccessToken(1,user);
-            await userService.UpdateRefreshToken(token.RefreshToken, token.Expiration, 1, user);
+            Token token = tokenHandler.CreateAccessToken(15,user);
+            await userService.UpdateRefreshToken(token.RefreshToken, token.Expiration, 5, user);
             if (result.Succeeded)
                 return new()
                 {
@@ -109,8 +109,8 @@ namespace ETicaretAPI.Persistence.Services
             var user =await userManager.Users.FirstOrDefaultAsync(user => user.RefreshToken == refreshToken);
             if (user != null && user.RefreshTokenDate > DateTime.UtcNow)
             {
-                Token token = tokenHandler.CreateAccessToken(1,user);
-                await userService.UpdateRefreshToken(token.RefreshToken, token.Expiration, 1, user);
+                Token token = tokenHandler.CreateAccessToken(15,user);
+                await userService.UpdateRefreshToken(token.RefreshToken, token.Expiration, 5, user);
                 return new()
                 {
                     AccessToken = token.AccessToken,
