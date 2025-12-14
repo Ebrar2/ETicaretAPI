@@ -1,4 +1,5 @@
 using ETicaretAPI.API.Configurations.ColumWriters;
+using ETicaretAPI.API.Extensions;
 using ETicaretAPI.Application;
 using ETicaretAPI.Application.Validators.Products;
 using ETicaretAPI.Infrastructure;
@@ -11,6 +12,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using NpgsqlTypes;
 using Serilog;
 using Serilog.Context;
 using Serilog.Core;
@@ -34,12 +36,12 @@ Logger logger = new LoggerConfiguration()
     .WriteTo.PostgreSQL(builder.Configuration.GetConnectionString("PostgreSQL"), "logs", needAutoCreateTable: true,
         columnOptions: new Dictionary<string, ColumnWriterBase>()
         {
-            {"message",new RenderedMessageColumnWriter() },
-            {"message_template",new MessageTemplateColumnWriter() },
-            {"level",new LevelColumnWriter() },
-            {"time_stamp",new TimestampColumnWriter() },
-            {"exception",new ExceptionColumnWriter() },
-            {"log_event",new LogEventSerializedColumnWriter() },
+            {"message",new RenderedMessageColumnWriter(NpgsqlDbType.Text) },
+            {"message_template",new MessageTemplateColumnWriter(NpgsqlDbType.Text) },
+            {"level",new LevelColumnWriter(true,NpgsqlDbType.Varchar) },
+            {"time_stamp",new TimestampColumnWriter(NpgsqlDbType.Timestamp) },
+            {"exception",new ExceptionColumnWriter(NpgsqlDbType.Text) },
+            {"log_event",new LogEventSerializedColumnWriter(NpgsqlDbType.Json) },
             {"user_name", new UsernameColumnWriter()}
         }
      )
@@ -89,7 +91,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.ConfigureExceptionHandler<Program>(app.Services.GetRequiredService<ILogger<Program>>());
 app.UseStaticFiles();
 app.UseSerilogRequestLogging();
 app.UseHttpLogging();
