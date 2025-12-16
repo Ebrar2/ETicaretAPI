@@ -18,7 +18,7 @@ namespace ETicaretAPI.Infrastructure.Services.Storage
             string editFileName = NameOperation.CharacterRegulatory(oldFileName);
             string fullName = $"{editFileName}{fileExtension}";
             // bool isExist = File.Exists($"{path}\\{fullName}");
-            bool isExist = hasFile(fileName, pathOrContainerName);
+            bool isExist = hasFile(fullName, pathOrContainerName);
 
 
             int sayac = 1;

@@ -2,6 +2,7 @@
 using ETicaretAPI.Application.Feautures.Commands.Product.CreateProduct;
 using ETicaretAPI.Application.Feautures.Commands.Product.DeleteProduct;
 using ETicaretAPI.Application.Feautures.Commands.Product.UpdateProduct;
+using ETicaretAPI.Application.Feautures.Commands.ProductImageFile.ChangeShowcaseProductImage;
 using ETicaretAPI.Application.Feautures.Commands.ProductImageFile.DeleteProductImage;
 using ETicaretAPI.Application.Feautures.Commands.ProductImageFile.UploadProductImage;
 using ETicaretAPI.Application.Feautures.Queries.Product.GetAllProduct;
@@ -101,6 +102,10 @@ namespace ETicaretAPI.API.Controllers
             return Ok();
             
         }
-       
+        [HttpGet("[action]")]
+        public async Task<IActionResult> ChangeShowcaseForProductImage([FromQuery]ChangeShowcaseForProductImageCommandRequest changeShowcaseForProductImageCommandRequest)
+        {
+            return Ok(await mediator.Send(changeShowcaseForProductImageCommandRequest));
+        }
     }
 }

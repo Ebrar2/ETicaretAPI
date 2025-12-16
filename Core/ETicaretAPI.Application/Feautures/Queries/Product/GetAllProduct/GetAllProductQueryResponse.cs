@@ -11,5 +11,6 @@ namespace ETicaretAPI.Application.Feautures.Queries.Product.GetAllProduct
     {
         public int totalCount { get; set; }
         public object Products { get; set; }
+        public string BaseUrl { get; set; }
     }
 }
