@@ -28,6 +28,7 @@ builder.Services.AddCors(o => o.AddDefaultPolicy(policy=>
   //policy.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin()
   policy.WithOrigins("http://localhost:4200", "https://localhost:4200").AllowAnyHeader().AllowAnyMethod().AllowCredentials()
 ));
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddPersistenceServices();
 builder.Services.AddInfrastructureServices();
 builder.Services.AddApplicationServices();
