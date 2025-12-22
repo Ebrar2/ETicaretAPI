@@ -1,18 +1,15 @@
-﻿using ETicaretAPI.Domain.Entities.Common;
+﻿using MediatR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ETicaretAPI.Domain.Entities
+namespace ETicaretAPI.Application.Feautures.Commands.Order.CreateOrder
 {
-    public class Order:BaseEntity
+   public  class CreateOrderCommandRequest:IRequest<CreateOrderCommandResponse>
     {
-       
         public string Address { get; set; }
         public string Description { get; set; }
-        public Basket Basket { get; set; }
-        
     }
 }
