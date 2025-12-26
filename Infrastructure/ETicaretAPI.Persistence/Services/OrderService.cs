@@ -88,5 +88,27 @@ namespace ETicaretAPI.Persistence.Services
             }
             return (getOrderDTOs.Skip(page * size).Take(size).ToList(), getOrderDTOs.Count);
          }
+
+        public async Task<GetOrderDetailsDTO> GetOrdertDetails(string orderId)
+        {
+            var order = await orderReadRepository.Table.Include(o => o.Basket).ThenInclude(b => b.BasketItems).ThenInclude(b => b.Product).FirstOrDefaultAsync(o => o.Id == Guid.Parse(orderId));
+            List<OrderBasketItem> orderBasketItems = new();
+            foreach(var basketItem in order.Basket.BasketItems)
+            {
+                OrderBasketItem orderBasketItem = new();
+                orderBasketItem.ProductPrice = basketItem.Product.Price;
+                orderBasketItem.ProductName = basketItem.Product.Name;
+                orderBasketItem.Quantity = basketItem.Quantity;
+                orderBasketItems.Add(orderBasketItem);
+            }
+            return new()
+            {
+                Id = order.Id.ToString(),
+                Address = order.Address,
+                BasketItems = orderBasketItems,
+                Description = order.Description,
+                TotalPrice = order.Basket.TotalPrice
+            };
+        }
     }
 }
