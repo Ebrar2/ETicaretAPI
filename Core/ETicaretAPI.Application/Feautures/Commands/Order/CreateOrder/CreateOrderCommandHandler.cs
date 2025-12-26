@@ -25,7 +25,8 @@ namespace ETicaretAPI.Application.Feautures.Commands.Order.CreateOrder
            await orderService.CreateOrderAsync(new DTOs.Order.CreateOrderDTO()
             {
                 Description = request.Description,
-                Address = request.Address
+                Address = request.Address,
+                TotalPrice=request.TotalPrice
             });
            await orderHubService.OrderCreatedaAsync("Yeni sipariş :) !!!");
             return new();

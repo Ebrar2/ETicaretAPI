@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 
 namespace ETicaretAPI.Application.DTOs.Order
 {
-    public class CreateOrderDTO
+    public class GetOrderDTO
     {
-        public string Address { get; set; }
-        public string Description { get; set; }
+        public string Id { get; set; }
+        public int OrderCode { get; set; }
+        public string OrderingUserName { get; set; }
         public float TotalPrice { get; set; }
+        public DateTime CreatedDate { get; set; }
     }
 }

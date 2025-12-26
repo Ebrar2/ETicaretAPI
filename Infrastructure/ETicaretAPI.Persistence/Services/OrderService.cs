@@ -4,6 +4,7 @@ using ETicaretAPI.Application.Repositories;
 using ETicaretAPI.Domain.Entities;
 using ETicaretAPI.Domain.Entities.Identity;
 using ETicaretAPI.Persistence.Repositories;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -18,12 +19,14 @@ namespace ETicaretAPI.Persistence.Services
     public class OrderService : IOrderService
     {
         readonly IOrderWriteRepository orderWriteRepository;
+        readonly IOrderReadRepository orderReadRepository;
         readonly IHttpContextAccessor httpContextAccessor;
         readonly UserManager<AppUser> userManager;
 
-        public OrderService(IOrderWriteRepository orderWriteRepository, IHttpContextAccessor httpContextAccessor, UserManager<AppUser> userManager)
+        public OrderService(IOrderWriteRepository orderWriteRepository, IOrderReadRepository orderReadRepository, IHttpContextAccessor httpContextAccessor, UserManager<AppUser> userManager)
         {
             this.orderWriteRepository = orderWriteRepository;
+            this.orderReadRepository = orderReadRepository;
             this.httpContextAccessor = httpContextAccessor;
             this.userManager = userManager;
         }
@@ -54,6 +57,7 @@ namespace ETicaretAPI.Persistence.Services
             if (basket!=null)
             {
                 basket.IsOrdered = true;
+                basket.TotalPrice = createOrder.TotalPrice;
                 await orderWriteRepository.AddAsync(new Domain.Entities.Order()
                 {
                     Basket=basket,
@@ -63,5 +67,26 @@ namespace ETicaretAPI.Persistence.Services
                 await orderWriteRepository.SaveAsync();
             }
         }
+        public async Task<(List<GetOrderDTO>, int totalCount)> GetOrderAsync(int page,int size)
+        {
+            var orders =await orderReadRepository.Table.Include(o => o.Basket).ThenInclude(b => b.User).ToListAsync();
+         
+            List<GetOrderDTO> getOrderDTOs = new List<GetOrderDTO>();
+
+            foreach(var order in orders)
+            {
+                GetOrderDTO getOrderDTO = new()
+                {
+                    Id = order.Id.ToString(),
+                    OrderingUserName = order.Basket.User.NameSurname,
+                    OrderCode = order.OrderCode,
+                    CreatedDate = order.CreatedDate,
+                    TotalPrice = order.Basket.TotalPrice
+
+                };
+                getOrderDTOs.Add(getOrderDTO);
+            }
+            return (getOrderDTOs.Skip(page * size).Take(size).ToList(), getOrderDTOs.Count);
+         }
     }
 }

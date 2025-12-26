@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -30,6 +31,13 @@ namespace ETicaretAPI.Persistence.Contexts
         {
             builder.Entity<Order>().HasKey(b => b.Id);
             builder.Entity<Basket>().HasOne(b => b.Order).WithOne(o => o.Basket).HasForeignKey<Order>(b => b.Id);
+            builder.HasSequence<int>("order_code").StartsAt(10000).IncrementsBy(2);
+            builder.Entity<Order>(entity =>
+            {
+                entity.Property(o => o.OrderCode).HasDefaultValueSql("nextval('order_code')").IsRequired();
+                entity.HasIndex(o => o.OrderCode).IsUnique();
+           });
+
             base.OnModelCreating(builder);
         }
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
