@@ -4,10 +4,12 @@ using ETicaretAPI.Application.DTOs;
 using ETicaretAPI.Application.DTOs.User;
 using ETicaretAPI.Application.Feautures.Commands.User.LoginUser;
 using ETicaretAPI.Application.Feautures.Commands.User.LoginWithGoogle;
+using ETicaretAPI.Application.Helpers;
 using ETicaretAPI.Domain.Entities.Identity;
 using Google.Apis.Auth;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -26,13 +28,16 @@ namespace ETicaretAPI.Persistence.Services
         readonly ITokenHandler tokenHandler;
         readonly SignInManager<AppUser> signInManager;
         readonly IUserService userService;
-        public AuthService(IConfiguration configuration, UserManager<AppUser> userManager, ITokenHandler tokenHandler, SignInManager<AppUser> signInManager,IUserService userService)
+        readonly IMailService mailService;
+        public AuthService(IConfiguration configuration, UserManager<AppUser> userManager, ITokenHandler tokenHandler, SignInManager<AppUser> signInManager,IUserService userService, IMailService mailService)
         {
             this.configuration = configuration;
             this.userManager = userManager;
             this.tokenHandler = tokenHandler;
             this.signInManager = signInManager;
             this.userService = userService;
+            this.mailService = mailService;
+           
         }
 
         public async Task<LoginWithGoogleResponseDTO> GoogleLoginAsync(LoginWithGoogleDTO loginWithGoogleDTO)
@@ -71,7 +76,7 @@ namespace ETicaretAPI.Persistence.Services
             {
                 await userManager.AddLoginAsync(user, userLoginInfo);
                 var token = tokenHandler.CreateAccessToken(15,user);
-                await  userService.UpdateRefreshToken(token.RefreshToken, token.Expiration, 5, user);
+                await  userService.UpdateRefreshTokenAsync(token.RefreshToken, token.Expiration, 5, user);
                 return new LoginWithGoogleResponseDTO {Succeeded=true, Message = "Giriş başarılı", AccessToken = token.AccessToken,RefreshToken=token.RefreshToken };
             }
             return new LoginWithGoogleResponseDTO { Message = "Giriş başarısız" };
@@ -87,7 +92,7 @@ namespace ETicaretAPI.Persistence.Services
                 return new LoginResponseDTO() { Message = "Kullanıcı Bulunamadı" };
             var result = await signInManager.CheckPasswordSignInAsync(user, loginDTO.Password, false);
             Token token = tokenHandler.CreateAccessToken(15,user);
-            await userService.UpdateRefreshToken(token.RefreshToken, token.Expiration, 5, user);
+            await userService.UpdateRefreshTokenAsync(token.RefreshToken, token.Expiration, 5, user);
             if (result.Succeeded)
                 return new()
                 {
@@ -110,7 +115,7 @@ namespace ETicaretAPI.Persistence.Services
             if (user != null && user.RefreshTokenDate > DateTime.UtcNow)
             {
                 Token token = tokenHandler.CreateAccessToken(15,user);
-                await userService.UpdateRefreshToken(token.RefreshToken, token.Expiration, 5, user);
+                await userService.UpdateRefreshTokenAsync(token.RefreshToken, token.Expiration, 5, user);
                 return new()
                 {
                     AccessToken = token.AccessToken,
@@ -120,6 +125,29 @@ namespace ETicaretAPI.Persistence.Services
             }
             else
                 return new() { Succeeded = false };
+        }
+
+        public async Task ResetPasswordAsync(string email)
+        {
+            var user = await userManager.FindByEmailAsync(email);
+            if (user!=null)
+            {
+                string resetToken = await userManager.GeneratePasswordResetTokenAsync(user);
+                resetToken=resetToken.UrlEncode();
+                await mailService.SendResetPasswordMailAsync(email,user.NameSurname, user.Id, resetToken);
+            }
+         
+        }
+
+        public async Task<bool> VerifyResetTokenAsync(string userId, string resetToken)
+        {
+            var user =await userManager.FindByIdAsync(userId);
+            if(user!=null)
+            {
+                resetToken = resetToken.UrlDecode();
+                return await userManager.VerifyUserTokenAsync(user,userManager.Options.Tokens.PasswordResetTokenProvider, "ResetPassword", resetToken);
+            }
+            return false;
         }
     }
 }

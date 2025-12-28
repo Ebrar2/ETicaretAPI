@@ -2,6 +2,7 @@
 using ETicaretAPI.Application.DTOs.User;
 using ETicaretAPI.Application.Exceptions.User;
 using ETicaretAPI.Application.Feautures.Commands.User.CreateUser;
+using ETicaretAPI.Application.Helpers;
 using ETicaretAPI.Domain.Entities.Identity;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -22,7 +23,7 @@ namespace ETicaretAPI.Persistence.Services
             this.userManager = userManager;
         }
 
-        public async Task<CreateUserResponseDTO> CreateUser(CreateUserDTO createUserDTO)
+        public async Task<CreateUserResponseDTO> CreateUserAsync(CreateUserDTO createUserDTO)
         {
             IdentityResult result = await userManager.CreateAsync(new AppUser()
             {
@@ -43,7 +44,7 @@ namespace ETicaretAPI.Persistence.Services
             return response;
         }
 
-        public async Task UpdateRefreshToken(string refreshToken, DateTime accessTokenDate, int refreshTokenDate, AppUser user)
+        public async Task UpdateRefreshTokenAsync(string refreshToken, DateTime accessTokenDate, int refreshTokenDate, AppUser user)
         {
             if(user!=null)
             {
@@ -54,5 +55,24 @@ namespace ETicaretAPI.Persistence.Services
             else
                 throw new NotFoundUserException();
         }
+
+        public async Task UpdateUserPasswordAsync(string userId,string resetToken, string newPassword)
+        {
+            var user = await userManager.FindByIdAsync(userId);
+            if(user!=null)
+            {
+                resetToken= resetToken.UrlDecode();
+                IdentityResult result= await  userManager.ResetPasswordAsync(user,resetToken ,newPassword);
+                if(result.Succeeded)
+                {
+                    await userManager.UpdateSecurityStampAsync(user);
+                    return;
+                }
+            
+            }
+
+            throw new PasswordChangeFailedException("Şifre değiştirme işlemi başarısız");
+        
+    }
     }
 }
