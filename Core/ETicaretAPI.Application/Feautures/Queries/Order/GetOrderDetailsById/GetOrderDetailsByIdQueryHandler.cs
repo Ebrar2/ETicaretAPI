@@ -28,7 +28,8 @@ namespace ETicaretAPI.Application.Feautures.Queries.Order.GetOrderDetailsById
                 Address = order.Address,
                 BasketItems = order.BasketItems,
                 Description = order.Description,
-                TotalPrice = order.TotalPrice
+                TotalPrice = order.TotalPrice,
+                IsCompleted=order.IsCompleted
 
             };
         }

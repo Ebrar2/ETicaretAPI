@@ -9,6 +9,7 @@ namespace ETicaretAPI.Application.DTOs.Order
     public class GetOrderDTO
     {
         public string Id { get; set; }
+        public bool IsCompleted { get; set; }
         public int OrderCode { get; set; }
         public string OrderingUserName { get; set; }
         public float TotalPrice { get; set; }

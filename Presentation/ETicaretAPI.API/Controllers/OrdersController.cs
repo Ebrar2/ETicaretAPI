@@ -1,4 +1,5 @@
-﻿using ETicaretAPI.Application.Feautures.Commands.Order.CreateOrder;
+﻿using ETicaretAPI.Application.Feautures.Commands.Order.CompleteOrder;
+using ETicaretAPI.Application.Feautures.Commands.Order.CreateOrder;
 using ETicaretAPI.Application.Feautures.Queries.Order;
 using ETicaretAPI.Application.Feautures.Queries.Order.GetOrderDetailsById;
 using MediatR;
@@ -33,6 +34,11 @@ namespace ETicaretAPI.API.Controllers
         public async Task<IActionResult> GetOrderDetailsById([FromRoute] GetOrderDetailsByIdQueryRequest orderDetailsByIdQueryRequest)
         {
             return Ok(await mediator.Send(orderDetailsByIdQueryRequest));
+        }
+        [HttpGet("[action]/{id}")]
+        public async Task<IActionResult> CompleteOrder([FromRoute]CompleteOrderCommandRequest completeOrderCommandRequest )
+        {
+            return Ok(await mediator.Send(completeOrderCommandRequest));
         }
 
     }

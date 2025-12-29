@@ -12,6 +12,7 @@ namespace ETicaretAPI.Application.DTOs.Order
         public string Address { get; set; }
         public string Description { get; set; }
         public float TotalPrice { get; set; }
+        public bool IsCompleted{get;set;}
         public List<OrderBasketItem> BasketItems { get; set; }
     }
     public class OrderBasketItem

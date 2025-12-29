@@ -13,6 +13,8 @@ namespace ETicaretAPI.Application.Feautures.Queries.Order.GetOrderDetailsById
         public string Address { get; set; }
         public string Description { get; set; }
         public float TotalPrice { get; set; }
+        public bool IsCompleted { get; set; }
+
         public List<OrderBasketItem> BasketItems { get; set; }
     }
 }

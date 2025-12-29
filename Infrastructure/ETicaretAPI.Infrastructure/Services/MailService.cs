@@ -42,6 +42,16 @@ namespace ETicaretAPI.Infrastructure.Services
             await smtpClient.SendMailAsync(mailMessage);
         }
 
+        public async Task SendOrderCompletedMailAsync(string to, string username, string orderCode)
+        {
+
+            StringBuilder mail = new();
+            mail.AppendLine("Merhaba " + username + ",<br>" + orderCode + "  No'lu siparişiniz kargoya verilmiştir.");
+            mail.AppendLine("<br>İyi günlerde kullanın :)");
+            mail.AppendLine("<br><br><br>Saygılarımızla,<br>E-Ticaret");
+            await SendMailAsync(new[] { to }, "Siparişiniz Kargoya Verildi", mail.ToString());
+        }
+
         public async Task SendResetPasswordMailAsync(string to,string username,string userId,string resetToken)
         {
             StringBuilder mail = new();

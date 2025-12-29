@@ -22,13 +22,15 @@ namespace ETicaretAPI.Persistence.Services
         readonly IOrderReadRepository orderReadRepository;
         readonly IHttpContextAccessor httpContextAccessor;
         readonly UserManager<AppUser> userManager;
+        readonly IMailService mailService;
 
-        public OrderService(IOrderWriteRepository orderWriteRepository, IOrderReadRepository orderReadRepository, IHttpContextAccessor httpContextAccessor, UserManager<AppUser> userManager)
+        public OrderService(IOrderWriteRepository orderWriteRepository, IOrderReadRepository orderReadRepository, IHttpContextAccessor httpContextAccessor, UserManager<AppUser> userManager,IMailService mailService)
         {
             this.orderWriteRepository = orderWriteRepository;
             this.orderReadRepository = orderReadRepository;
             this.httpContextAccessor = httpContextAccessor;
             this.userManager = userManager;
+            this.mailService = mailService;
         }
 
         private async Task<Basket> GetContextUserBasket()
@@ -81,7 +83,8 @@ namespace ETicaretAPI.Persistence.Services
                     OrderingUserName = order.Basket.User.NameSurname,
                     OrderCode = order.OrderCode,
                     CreatedDate = order.CreatedDate,
-                    TotalPrice = order.Basket.TotalPrice
+                    TotalPrice = order.Basket.TotalPrice,
+                    IsCompleted=order.IsCompleted
 
                 };
                 getOrderDTOs.Add(getOrderDTO);
@@ -107,8 +110,21 @@ namespace ETicaretAPI.Persistence.Services
                 Address = order.Address,
                 BasketItems = orderBasketItems,
                 Description = order.Description,
-                TotalPrice = order.Basket.TotalPrice
+                TotalPrice = order.Basket.TotalPrice,
+                IsCompleted = order.IsCompleted
             };
+        }
+
+        public async Task CompleteOrderAsync(string orderId)
+        {
+            var order = await orderReadRepository.Table.Include(o=>o.Basket).ThenInclude(b=>b.User).FirstOrDefaultAsync(o=>o.Id==Guid.Parse(orderId));
+            if(order!=null)
+            {
+                order.IsCompleted = true;
+                int result=await orderWriteRepository.SaveAsync();
+                if(result>0)
+                   await mailService.SendOrderCompletedMailAsync(order.Basket.User.Email,order.Basket.User.NameSurname, order.OrderCode.ToString());
+            }
         }
     }
 }
