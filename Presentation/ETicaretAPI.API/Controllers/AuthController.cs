@@ -11,7 +11,7 @@ namespace ETicaretAPI.API.Controllers
 
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthController : Controller
+    public class AuthController : ControllerBase
     {
         readonly IMediator mediator;
 
