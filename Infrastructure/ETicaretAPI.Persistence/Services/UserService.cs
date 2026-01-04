@@ -6,6 +6,7 @@ using ETicaretAPI.Application.Helpers;
 using ETicaretAPI.Domain.Entities.Identity;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +22,17 @@ namespace ETicaretAPI.Persistence.Services
         public UserService(UserManager<AppUser> userManager)
         {
             this.userManager = userManager;
+        }
+
+        public async Task AssignRoleToUserAsync(string id, string[] roles)
+        {
+            var user = await userManager.FindByIdAsync(id);
+            if(user!=null)
+            {
+                var userRoles = await userManager.GetRolesAsync(user);
+                await userManager.RemoveFromRolesAsync(user,userRoles);
+                await userManager.AddToRolesAsync(user, roles);
+            }
         }
 
         public async Task<CreateUserResponseDTO> CreateUserAsync(CreateUserDTO createUserDTO)
@@ -42,6 +54,32 @@ namespace ETicaretAPI.Persistence.Services
                     response.Message += error.Code.ToString() + "-" + error.Description;
             }
             return response;
+        }
+
+        public async Task<(List<ListUserDTO> users, int totalCount)> GetAllUsersAsync(int page, int size)
+        {
+            var users = await userManager.Users.Select(u=>new ListUserDTO()
+            {
+                Id=u.Id,
+                Email=u.Email,
+                NameSurname=u.NameSurname,
+                Username=u.UserName,
+                TwoFactorEnabled=u.TwoFactorEnabled
+            }).ToListAsync();
+            var listUser = users.Skip(page * size).Take(size).ToList();
+            return (listUser, users.Count);
+        }
+
+        public async Task<List<string>> GetRolesToUserAsync(string id)
+        {
+            var user = await userManager.FindByIdAsync(id);
+            if(user!=null)
+            {
+                var roles = await userManager.GetRolesAsync(user);
+                if (roles.Count != 0)
+                    return roles.ToList();
+            }
+            return new List<string>();
         }
 
         public async Task UpdateRefreshTokenAsync(string refreshToken, DateTime accessTokenDate, int refreshTokenDate, AppUser user)
