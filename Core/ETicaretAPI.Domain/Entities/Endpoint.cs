@@ -10,6 +10,9 @@ namespace ETicaretAPI.Domain.Entities
 {
    public  class Endpoint:BaseEntity
     {
+        public Endpoint()
+        {
+            Roles = new HashSet<AppRole>();    }
         public string ActionType { get; set; }
         public string Definition { get; set; }
         public string HttpType { get; set; }

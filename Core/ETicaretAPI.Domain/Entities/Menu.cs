@@ -9,6 +9,10 @@ namespace ETicaretAPI.Domain.Entities
 {
     public class Menu:BaseEntity
     {
+        public Menu()
+        {
+            Endpoints = new HashSet<Endpoint>();
+        }
         public string Name { get; set; }
         public ICollection<Endpoint> Endpoints { get; set; }
     }

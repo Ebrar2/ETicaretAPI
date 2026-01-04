@@ -9,7 +9,9 @@ namespace ETicaretAPI.Application.Feautures.Commands.AuthorizationEndpoint.Assig
 {
     public class AssignRolesEndpointCommandRequest:IRequest<AssignRolesEndpointCommandResponse>
     {
-        public string[] Roles { get; set; }
+        public string?[] Roles { get; set; }
         public string Code { get; set; }
+        public string Menu { get; set; }
+        public Type? Type { get; set; }
     }
 }
