@@ -1,5 +1,6 @@
 using ETicaretAPI.API.Configurations.ColumWriters;
 using ETicaretAPI.API.Extensions;
+using ETicaretAPI.API.Filters;
 using ETicaretAPI.Application;
 using ETicaretAPI.Application.Validators.Products;
 using ETicaretAPI.Infrastructure;
@@ -66,9 +67,14 @@ builder.Services.AddHttpLogging(logging =>
 });
 builder.Services.AddStorage<AzureStorage>();
 //builder.Services.AddStorage<LocalStorage>();
-builder.Services.AddControllers(o=>o.Filters.Add<ValidationFilter>())
-    .AddFluentValidation(configurationExpression=>configurationExpression.RegisterValidatorsFromAssemblyContaining<CreateProductValidator>())
-     .ConfigureApiBehaviorOptions(o=>o.SuppressModelStateInvalidFilter=true);
+builder.Services.AddControllers(o =>
+{
+      o.Filters.Add<ValidationFilter>();
+    o.Filters.Add<RolePermissionFilter>();
+
+})
+.AddFluentValidation(configurationExpression=>configurationExpression.RegisterValidatorsFromAssemblyContaining<CreateProductValidator>())
+.ConfigureApiBehaviorOptions(o=>o.SuppressModelStateInvalidFilter=true);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

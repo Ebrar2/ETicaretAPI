@@ -3,9 +3,11 @@ using ETicaretAPI.Application.DTOs.User;
 using ETicaretAPI.Application.Exceptions.User;
 using ETicaretAPI.Application.Feautures.Commands.User.CreateUser;
 using ETicaretAPI.Application.Helpers;
+using ETicaretAPI.Application.Repositories;
 using ETicaretAPI.Domain.Entities.Identity;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -18,10 +20,13 @@ namespace ETicaretAPI.Persistence.Services
     public class UserService : IUserService
     {
         readonly UserManager<AppUser> userManager;
-
-        public UserService(UserManager<AppUser> userManager)
+        readonly RoleManager<AppRole> roleManager;
+        readonly IEndpointReadRepository endpointReadRepository;
+        public UserService(UserManager<AppUser> userManager,RoleManager<AppRole> roleManager,IEndpointReadRepository endpointReadRepository)
         {
             this.userManager = userManager;
+            this.roleManager = roleManager;
+            this.endpointReadRepository = endpointReadRepository;
         }
 
         public async Task AssignRoleToUserAsync(string id, string[] roles)
@@ -80,6 +85,23 @@ namespace ETicaretAPI.Persistence.Services
                     return roles.ToList();
             }
             return new List<string>();
+        }
+
+        public async Task<bool> HasRolePermissionToEndpointAsync(string username,string code)
+        {
+            var user = await userManager.FindByNameAsync(username);
+            List<string> roleNames = (await userManager.GetRolesAsync(user)).ToList();
+            var endpoint=await endpointReadRepository.Table.Include(e => e.Roles).FirstOrDefaultAsync(e => e.Code == code);
+            if (endpoint == null)
+                return false;
+            foreach (var roleName in roleNames)
+            {
+               bool result= endpoint.Roles.Any(r => r.Name == roleName);
+                if (result)
+                    return true;
+            }
+            return false;
+
         }
 
         public async Task UpdateRefreshTokenAsync(string refreshToken, DateTime accessTokenDate, int refreshTokenDate, AppUser user)
