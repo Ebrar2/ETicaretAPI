@@ -1,4 +1,5 @@
-﻿using ETicaretAPI.Application.Abstractions.Storage;
+﻿using ETicaretAPI.Application.Abstractions.Services;
+using ETicaretAPI.Application.Abstractions.Storage;
 using ETicaretAPI.Application.Attributes;
 using ETicaretAPI.Application.Consts;
 using ETicaretAPI.Application.Enums;
@@ -35,14 +36,15 @@ namespace ETicaretAPI.API.Controllers
 
 
         readonly IStorageService storageService;
-
+        readonly IProductService productService;
         readonly IMediator mediator;
-        public ProductController( IStorageService storageService,IMediator mediator)
+        public ProductController( IStorageService storageService,IMediator mediator,IProductService productService)
         {
         
           
            this.storageService = storageService;
             this.mediator = mediator;
+            this.productService = productService;
         }
 
       
@@ -117,6 +119,13 @@ namespace ETicaretAPI.API.Controllers
         public async Task<IActionResult> ChangeShowcaseForProductImage([FromQuery]ChangeShowcaseForProductImageCommandRequest changeShowcaseForProductImageCommandRequest)
         {
             return Ok(await mediator.Send(changeShowcaseForProductImageCommandRequest));
+        }
+        [HttpGet("[action]/{productId}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GenerateQRCodeToProduct([FromRoute]string productId)
+        {
+            var result = await productService.GenerateQRCodeToProduct(productId);
+            return File(result,"image/png");
         }
     }
 }
