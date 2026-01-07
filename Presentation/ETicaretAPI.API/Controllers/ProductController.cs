@@ -6,6 +6,7 @@ using ETicaretAPI.Application.Enums;
 using ETicaretAPI.Application.Feautures.Commands.Product.CreateProduct;
 using ETicaretAPI.Application.Feautures.Commands.Product.DeleteProduct;
 using ETicaretAPI.Application.Feautures.Commands.Product.UpdateProduct;
+using ETicaretAPI.Application.Feautures.Commands.Product.UpdateProductStock;
 using ETicaretAPI.Application.Feautures.Commands.ProductImageFile.ChangeShowcaseProductImage;
 using ETicaretAPI.Application.Feautures.Commands.ProductImageFile.DeleteProductImage;
 using ETicaretAPI.Application.Feautures.Commands.ProductImageFile.UploadProductImage;
@@ -121,11 +122,19 @@ namespace ETicaretAPI.API.Controllers
             return Ok(await mediator.Send(changeShowcaseForProductImageCommandRequest));
         }
         [HttpGet("[action]/{productId}")]
-        [AllowAnonymous]
+        [AuthorizeDefinition(Menu = AuthorizeDefinitionConstants.Products, Definition = "Generate QR Code To Product", ActionTypes = ActionTypes.Reading)]
         public async Task<IActionResult> GenerateQRCodeToProduct([FromRoute]string productId)
         {
             var result = await productService.GenerateQRCodeToProduct(productId);
             return File(result,"image/png");
+        }
+        [HttpPut("[action]")]
+        [AuthorizeDefinition(Menu = AuthorizeDefinitionConstants.Products, Definition = "Change Product Stock", ActionTypes = ActionTypes.Updating)]
+
+        public async Task<IActionResult> ChangeProductStock([FromBody]UpdateProductStockCommandRequest updateProductStockCommandRequest)
+        {
+            return Ok(await mediator.Send(updateProductStockCommandRequest));
+
         }
     }
 }
