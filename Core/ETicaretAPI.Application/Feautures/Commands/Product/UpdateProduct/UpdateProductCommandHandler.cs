@@ -1,4 +1,5 @@
-﻿using ETicaretAPI.Application.Repositories;
+﻿using ETicaretAPI.Application.Abstractions.Services;
+using ETicaretAPI.Application.Repositories;
 using ETicaretAPI.Application.ViewModels.Products;
 using MediatR;
 using System;
@@ -11,23 +12,24 @@ namespace ETicaretAPI.Application.Feautures.Commands.Product.UpdateProduct
 {
     public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommanRequest, UpdateroductCommandResponse>
     {
-        readonly IProductWriteRepository productWriteRepository;
-        readonly IProductReadRepository productReadRepository;
 
+        readonly IProductService productService;
 
-        public UpdateProductCommandHandler(IProductWriteRepository productWriteRepository, IProductReadRepository productReadRepository)
+        public UpdateProductCommandHandler(IProductService productService)
         {
-            this.productWriteRepository = productWriteRepository;
-            this.productReadRepository = productReadRepository;
+            this.productService = productService;
         }
 
         public async Task<UpdateroductCommandResponse> Handle(UpdateProductCommanRequest request, CancellationToken cancellationToken)
         {
-            var product = await productReadRepository.GetByIdAsync(request.Id);
-            product.Stock = request.Stock;
-            product.Price = request.Price;
-            product.Name = request.Name;
-            await productWriteRepository.SaveAsync();
+            await productService.Update(new DTOs.Product.UpdateProductDTO()
+            {
+                Id = request.Id,
+                Name = request.Name,
+                Price = request.Price,
+                Categories = request.Categories,
+                Stock = request.Stock
+            });
             return new();
         }
     }

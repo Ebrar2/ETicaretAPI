@@ -13,5 +13,6 @@ namespace ETicaretAPI.Application.Feautures.Commands.Product.UpdateProduct
         public string Name { get; set; }
         public int Stock { get; set; }
         public float Price { get; set; }
+        public string[] Categories { get; set; }
     }
 }

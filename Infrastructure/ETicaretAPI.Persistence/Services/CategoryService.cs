@@ -1,9 +1,10 @@
 ﻿using ETicaretAPI.Application.Abstractions.Services;
-using ETicaretAPI.Application.DTOs.Category;
+using ETicaretAPI.Application.DTOs;
 using ETicaretAPI.Application.Repositories;
 using ETicaretAPI.Domain.Entities;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -41,6 +42,10 @@ namespace ETicaretAPI.Persistence.Services
         {
             var categories = categoryReadRepository.GetAll().ToList();
             int totalCount = categories.Count;
+            if (page == -1 && size == -1)
+            {
+                page = 0; size = categories.Count;
+            }
             List<GetAllCategoriesDTO> categoriesDTOs = categories.Select(c => new GetAllCategoriesDTO()
             {
                 Id = c.Id.ToString(),

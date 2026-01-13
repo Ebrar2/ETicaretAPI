@@ -1,4 +1,4 @@
-﻿using ETicaretAPI.Application.DTOs.Category;
+﻿using ETicaretAPI.Application.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;

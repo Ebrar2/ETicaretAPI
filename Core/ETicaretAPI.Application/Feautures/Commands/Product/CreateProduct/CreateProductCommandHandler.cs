@@ -1,4 +1,5 @@
 ﻿using ETicaretAPI.Application.Abstractions.Hubs;
+using ETicaretAPI.Application.Abstractions.Services;
 using ETicaretAPI.Application.Repositories;
 using ETicaretAPI.Domain.Entities;
 using MediatR;
@@ -12,24 +13,23 @@ namespace ETicaretAPI.Application.Feautures.Commands.Product.CreateProduct
 {
     public class CreateProductCommandHandler : IRequestHandler<CreateProductCommandRequest, CreateProductCommandResponse>
     {
-        readonly IProductWriteRepository productWriteRepository;
-        readonly IProductHubService productHubService;
-        public CreateProductCommandHandler(IProductWriteRepository productWriteRepository,IProductHubService productHubService)
+        readonly IProductService productService;
+
+        public CreateProductCommandHandler(IProductService productService)
         {
-            this.productHubService = productHubService;
-            this.productWriteRepository = productWriteRepository;
+            this.productService = productService;
         }
 
         public async Task<CreateProductCommandResponse> Handle(CreateProductCommandRequest request, CancellationToken cancellationToken)
         {
-            await productWriteRepository.AddAsync(new Domain.Entities.Product()
+
+            await productService.Create(new DTOs.Product.CreateProductDTO()
             {
                 Name = request.Name,
-                Price = request.Price,
-                Stock = request.Stock
+                Stock = request.Stock,
+                Categories = request.Categories,
+                Price = request.Price
             });
-            await productWriteRepository.SaveAsync();
-            await productHubService.ProductAddedAsync("ürün eklendi!!!");
             return new();
         }
     }

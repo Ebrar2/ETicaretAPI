@@ -71,7 +71,7 @@ namespace ETicaretAPI.API.Controllers
         }
         [HttpPut]
         [AuthorizeDefinition(Menu = AuthorizeDefinitionConstants.Products, Definition = "Update Product", ActionTypes = ActionTypes.Updating)]
-        public async Task<IActionResult> Put([FromBody]UpdateProductCommanRequest updateProductCommanRequest)
+        public async Task<IActionResult> Put(UpdateProductCommanRequest updateProductCommanRequest)
         {
             await mediator.Send(updateProductCommanRequest);
             return Ok();

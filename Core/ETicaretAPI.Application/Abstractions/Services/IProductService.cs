@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ETicaretAPI.Application.DTOs.Product;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,5 +11,8 @@ namespace ETicaretAPI.Application.Abstractions.Services
     {
         Task<byte[]> GenerateQRCodeToProduct(string productId);
         Task ChangeProductStock(string producId, int stock);
+        Task<GetProductById> GetProductByIdWithCategories(string productId);
+        Task Update(UpdateProductDTO updateProductDTO);
+        Task Create(CreateProductDTO createProductDTO);
     }
 }
