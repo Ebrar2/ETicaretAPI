@@ -14,5 +14,6 @@ namespace ETicaretAPI.Application.Feautures.Queries.Product.GetAllProduct
         public int Size { get; set; } = 5;
         public string[]? FilterCategories { get; set; }
         public int? MaxPrice { get; set; }
+        public string? Name { get; set; }
     }
 }

@@ -55,5 +55,12 @@ namespace ETicaretAPI.Persistence.Services
             }).Skip(page*size).Take(size).ToList();
             return new(categoriesDTOs,totalCount);
         }
+
+        public async Task UpdateCategoryAsync(string id, string name)
+        {
+            var category = await categoryReadRepository.GetByIdAsync(id);
+            category.Name = name;
+            await categoryWriteRepository.SaveAsync();
+        }
     }
 }

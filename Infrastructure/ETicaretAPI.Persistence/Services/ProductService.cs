@@ -1,6 +1,7 @@
 ﻿using ETicaretAPI.Application.Abstractions.Services;
 using ETicaretAPI.Application.DTOs.Product;
 using ETicaretAPI.Application.Feautures.Queries.Product.GetAllProduct;
+using ETicaretAPI.Application.Helpers;
 using ETicaretAPI.Application.Repositories;
 using ETicaretAPI.Domain.Entities;
 using MediatR;
@@ -76,11 +77,23 @@ namespace ETicaretAPI.Persistence.Services
             {
                 allProducts = allProducts.Where(p => p.Categories.Any(c => getAllProductDTO.FilterCategories.Any(s=>s==c.Name))).ToList();
             }
-            if(getAllProductDTO.MaxPrice!=null)
+            if (getAllProductDTO.MaxPrice != null)
             {
                 allProducts = allProducts.Where(p => p.Price < getAllProductDTO.MaxPrice).ToList();
             }
-            var totalCount = allProducts.Count();
+            if (getAllProductDTO.Name != null && getAllProductDTO.Name.Length!=0)
+            {
+                allProducts = allProducts.Select(p => new
+                {
+                    Products = p,
+                    Score = p.Name.Similarity(getAllProductDTO.Name)
+                })
+                .Where(x => x.Score > 0.7)  
+                .OrderByDescending(x => x.Score)
+                .Select(x => x.Products)
+                .ToList();
+            }
+             var totalCount = allProducts.Count();
             var products = allProducts.Skip(getAllProductDTO.Page * getAllProductDTO.Size).Take(getAllProductDTO.Size).Select(p => new
             {
                 p.Id,

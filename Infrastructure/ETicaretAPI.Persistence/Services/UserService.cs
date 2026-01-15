@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -42,17 +43,21 @@ namespace ETicaretAPI.Persistence.Services
 
         public async Task<CreateUserResponseDTO> CreateUserAsync(CreateUserDTO createUserDTO)
         {
-            IdentityResult result = await userManager.CreateAsync(new AppUser()
+            var user = new AppUser()
             {
                 Id = Guid.NewGuid().ToString(),
                 UserName = createUserDTO.UserName,
                 NameSurname = createUserDTO.NameSurname,
                 Email = createUserDTO.Email,
 
-            }, createUserDTO.Password);
+            };
+            IdentityResult result = await userManager.CreateAsync(user, createUserDTO.Password);
             CreateUserResponseDTO response = new() { Succeeded = result.Succeeded };
             if (result.Succeeded)
+            {
+                await userManager.AddToRolesAsync(user,new string[] {"user"});
                 response.Message = "Kullanıcı başarıyla eklendi";
+            }
             else
             {
                 foreach (var error in result.Errors)

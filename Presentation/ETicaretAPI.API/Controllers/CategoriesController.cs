@@ -3,6 +3,7 @@ using ETicaretAPI.Application.Consts;
 using ETicaretAPI.Application.Enums;
 using ETicaretAPI.Application.Feautures.Commands.Category.CreateCategory;
 using ETicaretAPI.Application.Feautures.Commands.Category.DeleteCategory;
+using ETicaretAPI.Application.Feautures.Commands.Category.UpdateCategory;
 using ETicaretAPI.Application.Feautures.Queries.Category.GetAll;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -41,6 +42,12 @@ namespace ETicaretAPI.API.Controllers
         public async Task<IActionResult> Delete([FromRoute]DeleteCategoryCommandRequest deleteCategoryCommandRequest)
         {
             return Ok(await mediator.Send(deleteCategoryCommandRequest));
+        }
+        [HttpPut]
+        [AuthorizeDefinition(Menu = AuthorizeDefinitionConstants.Categories, Definition = "Update Category", ActionTypes = ActionTypes.Updating)]
+        public async Task<IActionResult> Put([FromBody]UpdateCategoryCommandRequest updateCategoryCommandRequest)
+        {
+            return Ok(await mediator.Send(updateCategoryCommandRequest));
         }
     }
 }
