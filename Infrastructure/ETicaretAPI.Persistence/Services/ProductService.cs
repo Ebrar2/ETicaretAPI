@@ -1,5 +1,6 @@
 ﻿using ETicaretAPI.Application.Abstractions.Services;
 using ETicaretAPI.Application.DTOs.Product;
+using ETicaretAPI.Application.Feautures.Queries.Product.GetAllProduct;
 using ETicaretAPI.Application.Repositories;
 using ETicaretAPI.Domain.Entities;
 using MediatR;
@@ -28,14 +29,14 @@ namespace ETicaretAPI.Persistence.Services
             this.categoryReadRepository = categoryReadRepository;
         }
 
-        public async Task ChangeProductStock(string producId, int stock)
+        public async Task ChangeProductStockAsync(string producId, int stock)
         {
             var product = await productReadRepository.GetByIdAsync(producId);
             product.Stock = stock;
             await productWriteRepository.SaveAsync();
         }
 
-        public async Task Create(CreateProductDTO createProductDTO)
+        public async Task CreateAsync(CreateProductDTO createProductDTO)
         {
             List<Category> categories = new List<Category>();
             foreach(var categoryId in createProductDTO.Categories)
@@ -53,7 +54,7 @@ namespace ETicaretAPI.Persistence.Services
             await productWriteRepository.SaveAsync();
         }
 
-        public async Task<byte[]> GenerateQRCodeToProduct(string productId)
+        public async Task<byte[]> GenerateQRCodeToProductAsync(string productId)
         {
             var product = await productReadRepository.GetByIdAsync(productId);
             var productObject = new
@@ -68,7 +69,37 @@ namespace ETicaretAPI.Persistence.Services
            return qRCodeService.GenerateQRCode(text);
         }
 
-        public async Task<GetProductById> GetProductByIdWithCategories(string productId)
+        public async Task<GetAllProductResponseDTO> GetAllAsync(GetAllProductDTO getAllProductDTO)
+        {
+            var allProducts = await productReadRepository.Table.Include(p => p.ProductImageFiles).Include(p => p.Categories).ToListAsync();
+            if(getAllProductDTO.FilterCategories!=null)
+            {
+                allProducts = allProducts.Where(p => p.Categories.Any(c => getAllProductDTO.FilterCategories.Any(s=>s==c.Name))).ToList();
+            }
+            if(getAllProductDTO.MaxPrice!=null)
+            {
+                allProducts = allProducts.Where(p => p.Price < getAllProductDTO.MaxPrice).ToList();
+            }
+            var totalCount = allProducts.Count();
+            var products = allProducts.Skip(getAllProductDTO.Page * getAllProductDTO.Size).Take(getAllProductDTO.Size).Select(p => new
+            {
+                p.Id,
+                p.Name,
+                p.Price,
+                p.Stock,
+                p.UpdatedDate,
+                p.CreatedDate,
+                p.ProductImageFiles
+            }).ToList();
+
+            return new GetAllProductResponseDTO()
+            {
+                TotalCount = totalCount,
+                Products = products
+            };
+        }
+
+        public async Task<GetProductById> GetProductByIdWithCategoriesAsync(string productId)
         {
             var product = await productReadRepository.Table.Include(p => p.Categories).FirstOrDefaultAsync(p=>p.Id==Guid.Parse(productId));
             string[] categoryNames = product.Categories.Select(c => c.Name).ToArray();
@@ -81,7 +112,7 @@ namespace ETicaretAPI.Persistence.Services
             };
         }
 
-        public async Task Update(UpdateProductDTO updateProductDTO)
+        public async Task UpdateAsync(UpdateProductDTO updateProductDTO)
         {
             var product = await productReadRepository.Table.Include(p=>p.Categories).FirstOrDefaultAsync(p => p.Id == Guid.Parse(updateProductDTO.Id));
             product.Stock = updateProductDTO.Stock;

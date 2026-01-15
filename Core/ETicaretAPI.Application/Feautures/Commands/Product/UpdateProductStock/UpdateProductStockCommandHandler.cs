@@ -19,7 +19,7 @@ namespace ETicaretAPI.Application.Feautures.Commands.Product.UpdateProductStock
 
         public async Task<UpdateProductStockCommandResponse> Handle(UpdateProductStockCommandRequest request, CancellationToken cancellationToken)
         {
-            await productService.ChangeProductStock(request.Id, request.Stock);
+            await productService.ChangeProductStockAsync(request.Id, request.Stock);
             return new();
 
         }

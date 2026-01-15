@@ -12,5 +12,7 @@ namespace ETicaretAPI.Application.Feautures.Queries.Product.GetAllProduct
     {
         public int Page { get; set; } = 0;
         public int Size { get; set; } = 5;
+        public string[]? FilterCategories { get; set; }
+        public int? MaxPrice { get; set; }
     }
 }

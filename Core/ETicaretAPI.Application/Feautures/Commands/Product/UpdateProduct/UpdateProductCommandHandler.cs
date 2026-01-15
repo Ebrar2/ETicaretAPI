@@ -22,7 +22,7 @@ namespace ETicaretAPI.Application.Feautures.Commands.Product.UpdateProduct
 
         public async Task<UpdateroductCommandResponse> Handle(UpdateProductCommanRequest request, CancellationToken cancellationToken)
         {
-            await productService.Update(new DTOs.Product.UpdateProductDTO()
+            await productService.UpdateAsync(new DTOs.Product.UpdateProductDTO()
             {
                 Id = request.Id,
                 Name = request.Name,

@@ -21,7 +21,7 @@ namespace ETicaretAPI.Application.Feautures.Queries.Product.GetByIdProduct
 
         public async Task<GetByIdProductQueryResponse> Handle(GetByIdProductQueryRequest request, CancellationToken cancellationToken)
         {
-           var result= await productService.GetProductByIdWithCategories(request.Id);
+           var result= await productService.GetProductByIdWithCategoriesAsync(request.Id);
             return new()
             {
                 Name = result.Name,

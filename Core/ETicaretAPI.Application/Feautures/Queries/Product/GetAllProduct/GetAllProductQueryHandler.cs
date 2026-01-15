@@ -1,4 +1,5 @@
-﻿using ETicaretAPI.Application.Repositories;
+﻿using ETicaretAPI.Application.Abstractions.Services;
+using ETicaretAPI.Application.Repositories;
 using ETicaretAPI.Application.RequestParmeters;
 using ETicaretAPI.Domain.Entities;
 using MediatR;
@@ -14,34 +15,30 @@ namespace ETicaretAPI.Application.Feautures.Queries.Product.GetAllProduct
 {
     public class GetAllProductQueryHandler : IRequestHandler<GetAllProductQueryRequest, GetAllProductQueryResponse>
     {
-        readonly IProductReadRepository productReadRepository;
+        readonly IProductService productService;
         readonly IConfiguration configuration;
 
-        public GetAllProductQueryHandler(IProductReadRepository productReadRepository,IConfiguration configuration)
+        public GetAllProductQueryHandler(IProductService productService, IConfiguration configuration)
         {
-            this.productReadRepository = productReadRepository;
+            this.productService = productService;
             this.configuration = configuration;
         }
 
         public async Task<GetAllProductQueryResponse> Handle(GetAllProductQueryRequest request, CancellationToken cancellationToken)
         {
-            var totalCount = productReadRepository.GetAll(false).Count();
-           var products = productReadRepository.GetAll(false).Skip(request.Page * request.Size).Take(request.Size).Include(p=>p.ProductImageFiles).Select(p=> new
+
+            var result = await productService.GetAllAsync(new DTOs.Product.GetAllProductDTO()
             {
-                p.Id,
-                p.Name,
-                p.Price,
-                p.Stock,
-                p.UpdatedDate,
-                p.CreatedDate,
-                p.ProductImageFiles
-            }).ToList();
-            
+                Page = request.Page,
+                Size = request.Size,
+                FilterCategories = request.FilterCategories,
+                MaxPrice = request.MaxPrice
+            });
            
             return new GetAllProductQueryResponse()
             {
-                totalCount = totalCount,
-                Products = products,
+                totalCount = result.TotalCount,
+                Products = result.Products,
                 BaseUrl= configuration["BaseStorageUrl"]
             }
             ;

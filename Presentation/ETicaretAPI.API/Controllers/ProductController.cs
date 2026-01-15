@@ -48,11 +48,11 @@ namespace ETicaretAPI.API.Controllers
             this.productService = productService;
         }
 
-      
 
-        [HttpGet]
+
+        [HttpPost("[action]")]
         [AllowAnonymous]
-        public async Task<IActionResult> Get([FromQuery] GetAllProductQueryRequest getAllProductQueryRequest)
+        public async Task<IActionResult> GetAll([FromBody] GetAllProductQueryRequest getAllProductQueryRequest)
         {
             return Ok( await mediator.Send(getAllProductQueryRequest));
         }
@@ -125,7 +125,7 @@ namespace ETicaretAPI.API.Controllers
         [AuthorizeDefinition(Menu = AuthorizeDefinitionConstants.Products, Definition = "Generate QR Code To Product", ActionTypes = ActionTypes.Reading)]
         public async Task<IActionResult> GenerateQRCodeToProduct([FromRoute]string productId)
         {
-            var result = await productService.GenerateQRCodeToProduct(productId);
+            var result = await productService.GenerateQRCodeToProductAsync(productId);
             return File(result,"image/png");
         }
         [HttpPut("[action]")]

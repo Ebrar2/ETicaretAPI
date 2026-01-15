@@ -25,6 +25,7 @@ namespace ETicaretAPI.API.Controllers
 
         [HttpGet("[action]")]
         [AuthorizeDefinition(Menu = AuthorizeDefinitionConstants.Categories, Definition = "Get All Categories", ActionTypes = ActionTypes.Reading)]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAllCategories([FromQuery]GetAllCategoriesQueryRequest getAllCategoriesQueryRequest)
         {
             return Ok(await mediator.Send(getAllCategoriesQueryRequest));
