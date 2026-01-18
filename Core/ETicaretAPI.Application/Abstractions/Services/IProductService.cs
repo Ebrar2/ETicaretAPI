@@ -15,5 +15,6 @@ namespace ETicaretAPI.Application.Abstractions.Services
         Task UpdateAsync(UpdateProductDTO updateProductDTO);
         Task CreateAsync(CreateProductDTO createProductDTO);
         Task<GetAllProductResponseDTO> GetAllAsync(GetAllProductDTO getAllProductDTO);
+        Task<GetProductDetailsDTO> GetProductDetailsAsync(string id);
     }
 }

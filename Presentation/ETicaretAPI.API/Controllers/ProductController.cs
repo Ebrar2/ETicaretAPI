@@ -12,6 +12,7 @@ using ETicaretAPI.Application.Feautures.Commands.ProductImageFile.DeleteProductI
 using ETicaretAPI.Application.Feautures.Commands.ProductImageFile.UploadProductImage;
 using ETicaretAPI.Application.Feautures.Queries.Product.GetAllProduct;
 using ETicaretAPI.Application.Feautures.Queries.Product.GetByIdProduct;
+using ETicaretAPI.Application.Feautures.Queries.Product.GetProductDetails;
 using ETicaretAPI.Application.Feautures.Queries.ProductImageFile.GetProductImages;
 using ETicaretAPI.Application.Repositories;
 using ETicaretAPI.Application.RequestParmeters;
@@ -135,6 +136,12 @@ namespace ETicaretAPI.API.Controllers
         {
             return Ok(await mediator.Send(updateProductStockCommandRequest));
 
+        }
+        [HttpGet("[action]/{Id}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetProductDetails([FromRoute] GetProductDetailsQueryRequest getProductDetailsQueryRequest)
+        {
+            return Ok(await mediator.Send(getProductDetailsQueryRequest));
         }
     }
 }

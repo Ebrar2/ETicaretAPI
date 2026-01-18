@@ -1,4 +1,5 @@
 ﻿using ETicaretAPI.Application.Abstractions.Services;
+using ETicaretAPI.Application.DTOs.Product;
 using ETicaretAPI.Application.DTOs.User;
 using ETicaretAPI.Application.Exceptions.User;
 using ETicaretAPI.Application.Feautures.Commands.User.CreateUser;
@@ -66,7 +67,7 @@ namespace ETicaretAPI.Persistence.Services
             return response;
         }
 
-        public async Task<(List<ListUserDTO> users, int totalCount)> GetAllUsersAsync(int page, int size)
+        public async Task<(List<ListUserDTO> users, int totalCount)> GetAllUsersAsync(int page, int size,string name)
         {
             var users = await userManager.Users.Select(u=>new ListUserDTO()
             {
@@ -76,6 +77,18 @@ namespace ETicaretAPI.Persistence.Services
                 Username=u.UserName,
                 TwoFactorEnabled=u.TwoFactorEnabled
             }).ToListAsync();
+            if (name != null && name.Length != 0)
+            {
+                users = users.Select(u => new
+                {
+                    Users = u,
+                    Score = u.NameSurname.Similarity(name)
+                })
+                .Where(x => x.Score > 0.3)
+                .OrderByDescending(x => x.Score)
+                .Select(x => x.Users)
+                .ToList();
+            }
             var listUser = users.Skip(page * size).Take(size).ToList();
             return (listUser, users.Count);
         }

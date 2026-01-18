@@ -1,11 +1,13 @@
 ﻿using ETicaretAPI.Application.Abstractions.Services;
 using ETicaretAPI.Application.DTOs.Product;
 using ETicaretAPI.Application.Feautures.Queries.Product.GetAllProduct;
+using ETicaretAPI.Application.Feautures.Queries.ProductImageFile.GetProductImages;
 using ETicaretAPI.Application.Helpers;
 using ETicaretAPI.Application.Repositories;
 using ETicaretAPI.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,13 +23,15 @@ namespace ETicaretAPI.Persistence.Services
         readonly IQRCodeService qRCodeService;
         readonly IProductWriteRepository productWriteRepository;
         readonly ICategoryReadRepository categoryReadRepository;
+        readonly IConfiguration configuration;
 
-        public ProductService(IProductReadRepository productReadRepository, IQRCodeService qRCodeService,IProductWriteRepository productWriteRepository,ICategoryReadRepository categoryReadRepository)
+        public ProductService(IProductReadRepository productReadRepository, IQRCodeService qRCodeService,IProductWriteRepository productWriteRepository,ICategoryReadRepository categoryReadRepository,IConfiguration configuration)
         {
             this.productReadRepository = productReadRepository;
             this.qRCodeService = qRCodeService;
             this.productWriteRepository = productWriteRepository;
             this.categoryReadRepository = categoryReadRepository;
+            this.configuration = configuration;
         }
 
         public async Task ChangeProductStockAsync(string producId, int stock)
@@ -93,6 +97,13 @@ namespace ETicaretAPI.Persistence.Services
                 .Select(x => x.Products)
                 .ToList();
             }
+            if(getAllProductDTO.IsAscending!=null)
+            {
+                if (getAllProductDTO.IsAscending == true)
+                    allProducts = allProducts.OrderBy(p => p.Price).ToList();
+                else
+                    allProducts = allProducts.OrderByDescending(p => p.Price).ToList();
+            }
              var totalCount = allProducts.Count();
             var products = allProducts.Skip(getAllProductDTO.Page * getAllProductDTO.Size).Take(getAllProductDTO.Size).Select(p => new
             {
@@ -122,6 +133,28 @@ namespace ETicaretAPI.Persistence.Services
                 Price = product.Price,
                 Stock = product.Stock,
                 Categories=categoryNames
+            };
+        }
+
+        public async Task<GetProductDetailsDTO> GetProductDetailsAsync(string id)
+        {
+
+           var product = await productReadRepository.Table.Include(p => p.ProductImageFiles).FirstOrDefaultAsync(p => p.Id == Guid.Parse(id));
+
+
+           var productImages=  product.ProductImageFiles.Select(p => new Image
+            {
+                Path = $"{configuration["BaseStorageUrl"]}/{p.Path}",
+                FileName = p.FileName,
+                Showcase = p.Showcase,
+                Id = p.Id
+            }).ToList();
+            return new GetProductDetailsDTO()
+            {
+                Name = product.Name,
+                Price = product.Price,
+                Stock = product.Stock,
+                Images=productImages
             };
         }
 

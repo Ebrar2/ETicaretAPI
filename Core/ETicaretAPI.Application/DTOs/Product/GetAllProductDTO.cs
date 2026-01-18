@@ -13,6 +13,7 @@ namespace ETicaretAPI.Application.DTOs.Product
         public string?[] FilterCategories { get; set; }
         public int? MaxPrice { get; set; }
         public string? Name { get; set; }
+        public bool? IsAscending { get; set; }
 
     }
 }

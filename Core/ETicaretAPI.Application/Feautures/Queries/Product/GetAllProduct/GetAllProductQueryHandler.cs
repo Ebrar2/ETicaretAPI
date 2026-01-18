@@ -33,7 +33,9 @@ namespace ETicaretAPI.Application.Feautures.Queries.Product.GetAllProduct
                 Size = request.Size,
                 FilterCategories = request.FilterCategories,
                 MaxPrice = request.MaxPrice,
-                Name=request.Name
+                Name=request.Name,
+                IsAscending=request.IsAscending
+
             });
            
             return new GetAllProductQueryResponse()

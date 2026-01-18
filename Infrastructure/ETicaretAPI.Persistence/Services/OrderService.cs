@@ -8,8 +8,10 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,14 +25,15 @@ namespace ETicaretAPI.Persistence.Services
         readonly IHttpContextAccessor httpContextAccessor;
         readonly UserManager<AppUser> userManager;
         readonly IMailService mailService;
-
-        public OrderService(IOrderWriteRepository orderWriteRepository, IOrderReadRepository orderReadRepository, IHttpContextAccessor httpContextAccessor, UserManager<AppUser> userManager,IMailService mailService)
+        readonly IConfiguration configuration;
+        public OrderService(IOrderWriteRepository orderWriteRepository, IOrderReadRepository orderReadRepository, IHttpContextAccessor httpContextAccessor, UserManager<AppUser> userManager,IMailService mailService,IConfiguration configuration)
         {
             this.orderWriteRepository = orderWriteRepository;
             this.orderReadRepository = orderReadRepository;
             this.httpContextAccessor = httpContextAccessor;
             this.userManager = userManager;
             this.mailService = mailService;
+            this.configuration = configuration;
         }
 
         private async Task<Basket> GetContextUserBasket()
@@ -126,5 +129,36 @@ namespace ETicaretAPI.Persistence.Services
                    await mailService.SendOrderCompletedMailAsync(order.Basket.User.Email,order.Basket.User.NameSurname, order.OrderCode.ToString());
             }
         }
+
+        public async Task<List<GetDashboardDatas>> GetDashboardDatasAsync(int month)
+        {
+            DateTime now = DateTime.UtcNow;
+            int specialRange = month;
+            DateTime beforeFiveMonths = now.AddMonths(specialRange*-1);
+            List<GetDashboardDatas> datas = new List<GetDashboardDatas>();
+            var orders = await orderReadRepository.Table.Include(o=>o.Basket).ThenInclude(b=>b.BasketItems).Where(o => o.CreatedDate > beforeFiveMonths).OrderBy(o => o.CreatedDate).ToListAsync();
+
+            for(int i=0;i<specialRange;i++)
+            {
+                var date = now.AddMonths(-1 * i);
+                var dateOrders=orders.Where(o => o.CreatedDate.Month == date.Month).ToList();
+                int totalProductCount = 0;
+                float revenue = 0;
+                revenue += dateOrders.Sum(o => o.Basket.TotalPrice);
+                var total = dateOrders.Select(o => new
+                {
+                   total= o.Basket.BasketItems.Sum(b => b.Quantity)
+                }).Select(o=>o.total);
+                totalProductCount = total.Sum(t => t);
+                string montString = date.ToString("MMMM", new CultureInfo(configuration["Culture"]));
+                GetDashboardDatas getDashboardDatas = new GetDashboardDatas();
+                getDashboardDatas.TotalProductCount = totalProductCount;
+                getDashboardDatas.Revenue = Math.Round(revenue,2);
+                getDashboardDatas.Month = montString;
+                datas.Add(getDashboardDatas);
+            }
+            return datas;
+          
+         }
     }
 }
