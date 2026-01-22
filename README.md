@@ -25,18 +25,24 @@ Role Based Access Control mimarisini oluşturdum.Endpointlere roller atayarak ku
 
 
 
-Ürünler listelendi
+Ürünler Listelendi-Ürün Filtreleme ve Arama İşlemleri Yapıldı
 
 
-<img width="1482" height="832" alt="image" src="https://github.com/user-attachments/assets/af5e69fc-f495-4529-a3f1-2aa90e4ee014" />
+<img width="1388" height="867" alt="image" src="https://github.com/user-attachments/assets/d9395830-1440-409b-8994-ba2f16d2eab9" />
+<img width="1667" height="823" alt="image" src="https://github.com/user-attachments/assets/0a9d8909-6f24-4ac4-943e-6a10db83c9c5" />
 
 
 
-Ürün ekleme,silme,fotoğraf yükleme alanları ve qr okumayla stok güncelleme alanları oluşturuldu
+
+Ürün listeleme,arama,ekleme,silme,güncelleme,fotoğraf yükleme alanları ve qr okumayla stok güncelleme alanları oluşturuldu
 
 
 
 <img width="996" height="612" alt="image" src="https://github.com/user-attachments/assets/4d0730de-a076-4659-bb1a-07e1a5ef73d5" />
+<img width="1245" height="728" alt="image" src="https://github.com/user-attachments/assets/26ed533c-8c9c-4063-bc96-bf5d73416e05" />
+<img width="1292" height="791" alt="image" src="https://github.com/user-attachments/assets/a409379c-2196-45e2-b0e2-eb7ab0653de5" />
+
+
 
 
 
@@ -45,10 +51,17 @@ Role Based Access Control mimarisini oluşturdum.Endpointlere roller atayarak ku
 <img width="953" height="712" alt="image" src="https://github.com/user-attachments/assets/7963fba8-2509-4d12-97b4-68541f45ab2a" />
 
 
+Kategori Ekleme-Silme-Güncelleme İşlemleri yapildi
+
+
+<img width="1336" height="822" alt="image" src="https://github.com/user-attachments/assets/a33e97b3-f700-4575-a899-4d6149f9b81c" />
+
+
 
 Sipariş listeleme 
 
-<img width="1025" height="447" alt="image" src="https://github.com/user-attachments/assets/724fe3aa-2e4e-4263-8621-a1bf8a96ac1a" />
+<img width="1335" height="790" alt="image" src="https://github.com/user-attachments/assets/299c6573-0c4e-44aa-94d8-7cddc5e49692" />
+
 
 
 
@@ -75,11 +88,22 @@ Dosya yükleme işlemi için iki farklı yapı tasarlandı. Local Storage ve Azu
 <img width="1216" height="537" alt="image" src="https://github.com/user-attachments/assets/4e3aefa1-50ee-42cd-a6d7-214cd98436d6" />
 
 
+Dashboard Alanında Aylık Satışla İlgili  Grafik 
+
+
+<img width="1347" height="805" alt="image" src="https://github.com/user-attachments/assets/51f1a8a6-9a54-45e7-bb7f-486f3b985a74" />
+
+
+Müşteri listeleme,arama ve müşteri siparişlerini inceleme alanları
+<img width="1336" height="802" alt="image" src="https://github.com/user-attachments/assets/e9026854-b79c-4edd-99c5-a45a68e64345" />
+
+
 
 Sepet
 
 
 <img width="1296" height="481" alt="image" src="https://github.com/user-attachments/assets/995a03e8-35e9-4c2c-8cad-ea6701d4a8d9" />
+
 
 Client kısmında tasarım için Material ve Bootstrap kullandım.
 Bir çok kütüphaneyi projemde kullandım(Toastr,Alertify,SignalR,Spinner,Google,File Upload...).
