@@ -1,4 +1,5 @@
-﻿using ETicaretAPI.Application.DTOs.User;
+﻿using ETicaretAPI.Application.DTOs.Order;
+using ETicaretAPI.Application.DTOs.User;
 using ETicaretAPI.Domain.Entities.Identity;
 using System;
 using System.Collections.Generic;
@@ -17,5 +18,7 @@ namespace ETicaretAPI.Application.Abstractions.Services
         Task AssignRoleToUserAsync(string id, string[] roles);
         Task<List<string>> GetRolesToUserAsync(string id);
         Task<bool> HasRolePermissionToEndpointAsync(string username,string code);
+        Task<(List<ListCustomerDTO>, int totalCount)> GetAllCustomersAsync(int page, int size, string name);
+        Task<List<GetCustomerOrderDTO>> GetCustomerOrdersAsync(string id);
     }
 }

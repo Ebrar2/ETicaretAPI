@@ -1,18 +1,23 @@
 ﻿using ETicaretAPI.Application.Abstractions.Services;
+using ETicaretAPI.Application.DTOs.Order;
 using ETicaretAPI.Application.DTOs.Product;
 using ETicaretAPI.Application.DTOs.User;
 using ETicaretAPI.Application.Exceptions.User;
 using ETicaretAPI.Application.Feautures.Commands.User.CreateUser;
 using ETicaretAPI.Application.Helpers;
 using ETicaretAPI.Application.Repositories;
+using ETicaretAPI.Domain.Entities;
 using ETicaretAPI.Domain.Entities.Identity;
+using ETicaretAPI.Persistence.Repositories;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -67,8 +72,42 @@ namespace ETicaretAPI.Persistence.Services
             return response;
         }
 
-        public async Task<(List<ListUserDTO> users, int totalCount)> GetAllUsersAsync(int page, int size,string name)
+        public async Task<(List<ListCustomerDTO>, int totalCount)> GetAllCustomersAsync(int page, int size, string name)
         {
+            var users = await userManager.Users.ToListAsync();
+            List<ListCustomerDTO> customers = new List<ListCustomerDTO>();
+            foreach (var user in users)
+            {
+                var roles = await userManager.GetRolesAsync(user);
+                if(roles.Contains("user"))
+                {
+                    customers.Add(new ListCustomerDTO()
+                    {
+                        Id = user.Id,
+                        Email = user.Email,
+                        NameSurname = user.NameSurname
+                    });
+                }
+                
+            }
+            if (name != null && name.Length != 0)
+            {
+                customers = customers.Select(u => new
+                {
+                    Customers = u,
+                    Score = u.NameSurname.Similarity(name)
+                })
+                .Where(x => x.Score > 0.9)
+                .OrderByDescending(x => x.Score)
+                .Select(x => x.Customers)
+                .ToList();
+            }
+            var listCustomer = customers.Skip(page * size).Take(size).ToList();
+            return (listCustomer, customers.Count);
+        }
+
+        public async Task<(List<ListUserDTO> users, int totalCount)> GetAllUsersAsync(int page, int size,string name)
+        {         
             var users = await userManager.Users.Select(u=>new ListUserDTO()
             {
                 Id=u.Id,
@@ -91,6 +130,23 @@ namespace ETicaretAPI.Persistence.Services
             }
             var listUser = users.Skip(page * size).Take(size).ToList();
             return (listUser, users.Count);
+        }
+
+        public async Task<List<GetCustomerOrderDTO>> GetCustomerOrdersAsync(string id)
+        {
+            var user = await userManager.Users.Include(u=>u.Baskets).ThenInclude(b=>b.Order).Where(u=>u.Id==id).FirstOrDefaultAsync();
+            if(user!=null)
+            {
+                var getOrderDTOs = user.Baskets.Select(b => new GetCustomerOrderDTO()
+                {
+                    OrderCode = b.Order.OrderCode,
+                    CreatedDate = b.Order.CreatedDate,
+                    TotalPrice = b.TotalPrice,
+                    IsCompleted = b.Order.IsCompleted
+                }).ToList();
+                return getOrderDTOs.OrderByDescending(g=>g.CreatedDate).ToList();
+            }
+            return new();
         }
 
         public async Task<List<string>> GetRolesToUserAsync(string id)

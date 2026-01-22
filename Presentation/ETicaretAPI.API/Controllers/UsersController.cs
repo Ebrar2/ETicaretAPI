@@ -8,7 +8,9 @@ using ETicaretAPI.Application.Feautures.Commands.User.LoginUser;
 using ETicaretAPI.Application.Feautures.Commands.User.LoginWithGoogle;
 using ETicaretAPI.Application.Feautures.Commands.User.UpdateUserPassword;
 using ETicaretAPI.Application.Feautures.Queries.Role.GetRoleById;
+using ETicaretAPI.Application.Feautures.Queries.User.GetAllCustomers;
 using ETicaretAPI.Application.Feautures.Queries.User.GetAllUsers;
+using ETicaretAPI.Application.Feautures.Queries.User.GetCustomerOrder;
 using ETicaretAPI.Application.Feautures.Queries.User.GetRolesToUser;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -64,5 +66,20 @@ namespace ETicaretAPI.API.Controllers
         {
             return Ok(await mediator.Send(getRolesToUserQueryRequest));
         }
+        [HttpPost("[action]")]
+        [Authorize(AuthenticationSchemes = ("Admin"))]
+        [AuthorizeDefinition(Menu = AuthorizeDefinitionConstants.Users, Definition = "Get All Customers", ActionTypes = ActionTypes.Reading)]
+        public async Task<IActionResult> GetCustomers([FromBody]GetAllCustomersQueryRequest getAllCustomersQueryRequest)
+        {
+            return Ok(await mediator.Send(getAllCustomersQueryRequest));
+        }
+        [HttpGet("[action]/{id}")]
+        [Authorize(AuthenticationSchemes = ("Admin"))]
+        [AuthorizeDefinition(Menu = AuthorizeDefinitionConstants.Users, Definition = "Get Customer Orders", ActionTypes = ActionTypes.Reading)]
+        public async Task<IActionResult> GetCustomerOrders([FromRoute] GetCustomerOrderQueryRequest getCustomerOrderQueryRequest)
+        {
+            return Ok(await mediator.Send(getCustomerOrderQueryRequest));
+        }
+
     }
 }

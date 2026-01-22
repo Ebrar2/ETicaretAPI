@@ -1,5 +1,7 @@
 ﻿using ETicaretAPI.Application.Abstractions.Services;
 using ETicaretAPI.Application.DTOs.Order;
+using ETicaretAPI.Application.DTOs.Product;
+using ETicaretAPI.Application.Helpers;
 using ETicaretAPI.Application.Repositories;
 using ETicaretAPI.Domain.Entities;
 using ETicaretAPI.Domain.Entities.Identity;
@@ -26,7 +28,7 @@ namespace ETicaretAPI.Persistence.Services
         readonly UserManager<AppUser> userManager;
         readonly IMailService mailService;
         readonly IConfiguration configuration;
-        public OrderService(IOrderWriteRepository orderWriteRepository, IOrderReadRepository orderReadRepository, IHttpContextAccessor httpContextAccessor, UserManager<AppUser> userManager,IMailService mailService,IConfiguration configuration)
+        public OrderService(IOrderWriteRepository orderWriteRepository, IOrderReadRepository orderReadRepository, IHttpContextAccessor httpContextAccessor, UserManager<AppUser> userManager, IMailService mailService,IConfiguration configuration)
         {
             this.orderWriteRepository = orderWriteRepository;
             this.orderReadRepository = orderReadRepository;
@@ -50,7 +52,7 @@ namespace ETicaretAPI.Persistence.Services
                 }
                 else
                 {
-                  
+
                     return null;
                 }
             }
@@ -72,10 +74,21 @@ namespace ETicaretAPI.Persistence.Services
                 await orderWriteRepository.SaveAsync();
             }
         }
-        public async Task<(List<GetOrderDTO>, int totalCount)> GetOrderAsync(int page,int size)
+        public async Task<(List<GetOrderDTO>, int totalCount)> GetOrderAsync(int page, int size, string? orderCode)
         {
-            var orders =await orderReadRepository.Table.Include(o => o.Basket).ThenInclude(b => b.User).ToListAsync();
-         
+            var orders = await orderReadRepository.Table.Include(o => o.Basket).ThenInclude(b => b.User).ToListAsync();
+            if (orderCode != null && orderCode.Length != 0 && orderCode != "null")
+            {
+                orders = orders.Select(o => new
+                {
+                    Orders = o,
+                    Score = o.OrderCode.ToString().Similarity(orderCode)
+                })
+                .Where(x => x.Score > 0.9)
+                .OrderByDescending(x => x.Score)
+                .Select(x => x.Orders)
+                .ToList();
+            }
             List<GetOrderDTO> getOrderDTOs = new List<GetOrderDTO>();
 
             foreach(var order in orders)
@@ -92,8 +105,9 @@ namespace ETicaretAPI.Persistence.Services
                 };
                 getOrderDTOs.Add(getOrderDTO);
             }
+            getOrderDTOs=getOrderDTOs.OrderByDescending(o => o.CreatedDate).ToList();
             return (getOrderDTOs.Skip(page * size).Take(size).ToList(), getOrderDTOs.Count);
-         }
+        }
 
         public async Task<GetOrderDetailsDTO> GetOrdertDetails(string orderId)
         {
@@ -126,7 +140,7 @@ namespace ETicaretAPI.Persistence.Services
                 order.IsCompleted = true;
                 int result=await orderWriteRepository.SaveAsync();
                 if(result>0)
-                   await mailService.SendOrderCompletedMailAsync(order.Basket.User.Email,order.Basket.User.NameSurname, order.OrderCode.ToString());
+                    await mailService.SendOrderCompletedMailAsync(order.Basket.User.Email,order.Basket.User.NameSurname, order.OrderCode.ToString());
             }
         }
 
@@ -147,7 +161,7 @@ namespace ETicaretAPI.Persistence.Services
                 revenue += dateOrders.Sum(o => o.Basket.TotalPrice);
                 var total = dateOrders.Select(o => new
                 {
-                   total= o.Basket.BasketItems.Sum(b => b.Quantity)
+                    total= o.Basket.BasketItems.Sum(b => b.Quantity)
                 }).Select(o=>o.total);
                 totalProductCount = total.Sum(t => t);
                 string montString = date.ToString("MMMM", new CultureInfo(configuration["Culture"]));
@@ -158,7 +172,7 @@ namespace ETicaretAPI.Persistence.Services
                 datas.Add(getDashboardDatas);
             }
             return datas;
-          
-         }
+
+        }
     }
 }

@@ -19,7 +19,7 @@ namespace ETicaretAPI.Application.Feautures.Queries.Order
 
         public async Task<GetOrdersQueryResponse> Handle(GetOrdersQueryRequest request, CancellationToken cancellationToken)
         {
-            var (orders,totalCount) = await orderService.GetOrderAsync(request.Page,request.Size);
+            var (orders,totalCount) = await orderService.GetOrderAsync(request.Page,request.Size,request.OrderCode);
 
             return new GetOrdersQueryResponse() { Orders =orders, TotalCount=totalCount};
         }
