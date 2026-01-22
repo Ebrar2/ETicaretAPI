@@ -25,11 +25,12 @@ Role Based Access Control mimarisini oluşturdum.Endpointlere roller atayarak ku
 
 
 
-Ürünler Listelendi-Ürün Filtreleme ve Arama İşlemleri Yapıldı
+Ürünler Listelendi-Ürün Filtreleme ve Arama İşlemleri Yapıldı-Ürün Ayrıntıları Sayfası Oluşturuldu
 
 
 <img width="1388" height="867" alt="image" src="https://github.com/user-attachments/assets/d9395830-1440-409b-8994-ba2f16d2eab9" />
 <img width="1667" height="823" alt="image" src="https://github.com/user-attachments/assets/0a9d8909-6f24-4ac4-943e-6a10db83c9c5" />
+<img width="1432" height="837" alt="image" src="https://github.com/user-attachments/assets/be690cf0-bf04-486e-a583-622b09f410df" />
 
 
 
